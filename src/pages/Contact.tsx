@@ -5,8 +5,8 @@ export function Contact() {
   return (
     <motion.div 
       initial={{ opacity: 0, y: 50 }}
-      animate={{ opacity: 1, y: 0 }}
-      exit={{ opacity: 0, y: -50, filter: "blur(5px)" }}
+      whileInView={{ opacity: 1, y: 0 }}
+      viewport={{ once: false, margin: "-100px" }}
       transition={{ duration: 0.6 }}
       className="max-w-3xl mx-auto py-12"
     >
@@ -25,8 +25,9 @@ export function Contact() {
 
         <div className="space-y-6">
           <motion.div 
-            initial={{ opacity: 0, x: -20 }}
-            animate={{ opacity: 1, x: 0 }}
+            initial={{ opacity: 0, x: -50 }}
+            whileInView={{ opacity: 1, x: 0 }}
+            viewport={{ once: false }}
             transition={{ delay: 0.3 }}
             className="flex items-center space-x-4 p-4 rounded-xl bg-white/5 border border-white/10 hover:border-neon-blue/50 transition-colors duration-300 group"
           >
@@ -37,8 +38,9 @@ export function Contact() {
           </motion.div>
 
           <motion.div 
-            initial={{ opacity: 0, x: -20 }}
-            animate={{ opacity: 1, x: 0 }}
+            initial={{ opacity: 0, x: -50 }}
+            whileInView={{ opacity: 1, x: 0 }}
+            viewport={{ once: false }}
             transition={{ delay: 0.4 }}
             className="flex items-center space-x-4 p-4 rounded-xl bg-white/5 border border-white/10 hover:border-neon-purple/50 transition-colors duration-300 group"
           >
@@ -49,10 +51,16 @@ export function Contact() {
           </motion.div>
         </div>
 
-        <div className="mt-12 pt-8 border-t border-white/10">
+        <motion.div 
+          initial={{ opacity: 0 }}
+          whileInView={{ opacity: 1 }}
+          viewport={{ once: false }}
+          transition={{ delay: 0.6 }}
+          className="mt-12 pt-8 border-t border-white/10"
+        >
           <h3 className="text-sm font-mono text-gray-500 uppercase tracking-widest mb-4">Social Network</h3>
           <SocialLinks />
-        </div>
+        </motion.div>
       </div>
     </motion.div>
   );

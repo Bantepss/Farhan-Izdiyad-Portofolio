@@ -8,8 +8,8 @@ export function About() {
   return (
     <motion.div 
       initial={{ opacity: 0, x: -50 }}
-      animate={{ opacity: 1, x: 0 }}
-      exit={{ opacity: 0, x: 50, filter: "blur(5px)" }}
+      whileInView={{ opacity: 1, x: 0 }}
+      viewport={{ once: false, margin: "-100px" }}
       transition={{ duration: 0.6 }}
       className="max-w-4xl mx-auto py-12"
     >
@@ -19,9 +19,10 @@ export function About() {
       
       <div className="grid md:grid-cols-2 gap-8">
         <motion.div 
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.3 }}
+          initial={{ opacity: 0, y: 50 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: false, margin: "-50px" }}
+          transition={{ delay: 0.2 }}
           className="glass-panel p-8 rounded-2xl"
         >
           <h2 className="text-2xl font-semibold mb-4 text-white">About Me</h2>
@@ -34,9 +35,10 @@ export function About() {
         </motion.div>
         
         <motion.div 
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.5 }}
+          initial={{ opacity: 0, y: 50 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: false, margin: "-50px" }}
+          transition={{ delay: 0.4 }}
           className="glass-panel p-8 rounded-2xl border-neon-purple/50"
         >
           <h2 className="text-2xl font-semibold mb-4 text-white">Tech Arsenal</h2>
@@ -45,8 +47,9 @@ export function About() {
               <motion.span 
                 key={skill}
                 initial={{ scale: 0 }}
-                animate={{ scale: 1 }}
-                transition={{ delay: 0.6 + (index * 0.1), type: "spring" }}
+                whileInView={{ scale: 1 }}
+                viewport={{ once: false }}
+                transition={{ delay: 0.5 + (index * 0.1), type: "spring" }}
                 whileHover={{ scale: 1.1, backgroundColor: "rgba(188,19,254,0.3)" }}
                 className="px-4 py-2 rounded-full border border-neon-purple/30 bg-neon-purple/10 text-sm font-mono text-gray-200 cursor-default transition-colors duration-300"
               >
