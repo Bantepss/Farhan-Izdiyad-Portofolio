@@ -1,36 +1,41 @@
 @import "tailwindcss";
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
 
 @theme {
-  --color-neon-blue: #00f3ff;
-  --color-neon-purple: #bc13fe;
-  --color-dark-bg: #030014;
-  --color-dark-glass: rgba(10, 10, 25, 0.6);
-  --color-border-glow: rgba(0, 243, 255, 0.3);
+  --color-brand-primary: #135CC5;
+  --color-brand-hover: #0C3BAA;
+  --color-brand-light: #EFF6FF;
+  --color-text-main: #0F172A;
+  --color-text-muted: #475569;
+  --color-bg-page: #F8FAFC;
+  --color-bg-card: #FFFFFF;
+  --color-border-subtle: #E2E8F0;
 }
 
 @layer base {
   body {
-    @apply bg-[var(--color-dark-bg)] text-white font-sans antialiased overflow-x-hidden;
-    background-image: 
-      radial-gradient(circle at 15% 50%, rgba(0, 243, 255, 0.08), transparent 25%),
-      radial-gradient(circle at 85% 30%, rgba(188, 19, 254, 0.08), transparent 25%);
+    @apply bg-[var(--color-bg-page)] text-[var(--color-text-main)] font-sans antialiased overflow-x-hidden;
   }
 
   ::selection {
-    @apply bg-[var(--color-neon-blue)] text-black;
+    @apply bg-[var(--color-brand-primary)] text-white;
   }
 }
 
 @layer utilities {
   .glass-panel {
-    @apply bg-[var(--color-dark-glass)] backdrop-blur-md border border-[var(--color-border-glow)] shadow-[0_0_15px_rgba(0,243,255,0.1)];
+    @apply bg-[var(--color-bg-card)] border border-[var(--color-border-subtle)] shadow-sm;
   }
   
-  .text-glow {
-    text-shadow: 0 0 10px rgba(0, 243, 255, 0.5);
+  .saas-card {
+    @apply bg-white rounded-2xl border border-slate-200 shadow-sm transition-shadow duration-300 hover:shadow-md;
+  }
+
+  .btn-primary {
+    @apply bg-[var(--color-brand-primary)] text-white px-6 py-3 rounded-xl font-medium transition-colors hover:bg-[var(--color-brand-hover)] shadow-sm;
+  }
+
+  .badge-blue {
+    @apply bg-blue-50 text-[var(--color-brand-primary)] border border-blue-100 px-3 py-1 rounded-full text-xs font-semibold uppercase tracking-wider;
   }
 }
 
@@ -40,14 +45,14 @@
 }
 
 ::-webkit-scrollbar-track {
-  background: #030014;
+  background: #F8FAFC;
 }
 
 ::-webkit-scrollbar-thumb {
-  background: rgba(0, 243, 255, 0.3);
+  background: #CBD5E1;
   border-radius: 4px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: rgba(0, 243, 255, 0.6);
+  background: #94A3B8;
 }

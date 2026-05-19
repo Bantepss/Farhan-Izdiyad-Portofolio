@@ -10,12 +10,11 @@ export function RootLayout({ children }: { children: React.ReactNode }) {
   useEffect(() => {
     const lenis = new Lenis({
       autoRaf: true,
-      duration: 1.5,
+      duration: 1.2, // Sedikit lebih cepat agar terasa responsif seperti SaaS
       easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
       smoothWheel: true,
     });
 
-    // Expose lenis globally so components like Navbar can use its scrollTo
     // @ts-ignore
     window.lenis = lenis;
 
@@ -37,15 +36,6 @@ export function RootLayout({ children }: { children: React.ReactNode }) {
             {children}
           </main>
           <Footer />
-          
-          {/* Futuristic grid background overlay */}
-          <div className="fixed inset-0 pointer-events-none z-[-1] opacity-20"
-               style={{
-                 backgroundImage: `linear-gradient(rgba(0, 243, 255, 0.1) 1px, transparent 1px),
-                                   linear-gradient(90deg, rgba(0, 243, 255, 0.1) 1px, transparent 1px)`,
-                 backgroundSize: '40px 40px'
-               }}
-          />
         </div>
       )}
     </>

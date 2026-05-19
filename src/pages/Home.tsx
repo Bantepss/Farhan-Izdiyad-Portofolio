@@ -1,10 +1,113 @@
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence, useMotionValue, useSpring, useTransform } from 'framer-motion';
+import { useState, useRef, useEffect } from 'react';
+import { FaTimes, FaLinkedin, FaInstagram, FaTwitter, FaYoutube } from 'react-icons/fa';
+import fotoProfil from '../assets/FotoBantep1.jpeg';
+import fotoProfil2 from '../assets/FotoBantep2.jpeg';
 import { About } from './About';
 import { Projects } from './Projects';
 import { Contact } from './Contact';
 
+// --- Tipe Data ---
+interface Experience {
+  title: string;
+  company: string;
+  date: string;
+  location: string;
+  description: string;
+  logo: string;
+  skills: string[];
+}
+
+// --- Komponen Kartu Experience 3D ---
+function ExperienceCard({ exp, onClick, layoutIdPrefix }: { exp: Experience, onClick: () => void, layoutIdPrefix: string }) {
+  const ref = useRef<HTMLDivElement>(null);
+  const x = useMotionValue(0);
+  const y = useMotionValue(0);
+  const mouseXSpring = useSpring(x, { stiffness: 300, damping: 30 });
+  const mouseYSpring = useSpring(y, { stiffness: 300, damping: 30 });
+  const rotateX = useTransform(mouseYSpring, [-0.5, 0.5], ["10deg", "-10deg"]);
+  const rotateY = useTransform(mouseXSpring, [-0.5, 0.5], ["-10deg", "10deg"]);
+
+  const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
+    if (!ref.current) return;
+    const rect = ref.current.getBoundingClientRect();
+    const width = rect.width;
+    const height = rect.height;
+    const mouseX = e.clientX - rect.left;
+    const mouseY = e.clientY - rect.top;
+    x.set(mouseX / width - 0.5);
+    y.set(mouseY / height - 0.5);
+  };
+
+  const handleMouseLeave = () => {
+    x.set(0);
+    y.set(0);
+  };
+
+  return (
+    <motion.div
+      ref={ref}
+      onMouseMove={handleMouseMove}
+      onMouseLeave={handleMouseLeave}
+      onClick={onClick}
+      style={{ rotateX, rotateY, transformStyle: "preserve-3d" }}
+      className="cursor-pointer perspective-[1000px] shrink-0 w-[300px] sm:w-[350px] md:w-[400px] h-full"
+    >
+      <motion.div 
+        layoutId={`${layoutIdPrefix}-container`}
+        className="saas-card p-6 flex flex-col h-full bg-white relative group"
+        style={{ transform: "translateZ(30px)" }}
+      >
+        <div className="flex items-center gap-4 mb-4">
+          {exp.logo && (
+            <motion.div 
+              layoutId={`${layoutIdPrefix}-logo-container`}
+              className="shrink-0 w-12 h-12 sm:w-16 sm:h-16 rounded-xl overflow-hidden border border-slate-100 bg-slate-50 flex items-center justify-center"
+            >
+              <motion.img 
+                layoutId={`${layoutIdPrefix}-logo`}
+                src={exp.logo} 
+                alt={`${exp.company} logo`}
+                className="w-full h-full object-cover opacity-90 group-hover:scale-110 transition-transform duration-500"
+              />
+            </motion.div>
+          )}
+          <div>
+            <motion.span layoutId={`${layoutIdPrefix}-date`} className="text-[10px] sm:text-xs font-bold text-[#135CC5] block tracking-wide uppercase">
+              {exp.date}
+            </motion.span>
+            <motion.h4 layoutId={`${layoutIdPrefix}-company`} className="text-sm sm:text-md font-medium text-slate-600 line-clamp-1">
+              {exp.company}
+            </motion.h4>
+          </div>
+        </div>
+
+        <motion.h3 layoutId={`${layoutIdPrefix}-title`} className="text-lg sm:text-xl font-bold text-[#0F172A] mb-3 line-clamp-2 group-hover:text-[#135CC5] transition-colors">
+          {exp.title}
+        </motion.h3>
+        
+        <motion.p layoutId={`${layoutIdPrefix}-desc`} className="text-xs sm:text-sm text-slate-600 leading-relaxed mb-4 line-clamp-3 flex-1">
+          {exp.description}
+        </motion.p>
+        
+        <motion.div layoutId={`${layoutIdPrefix}-skills`} className="flex flex-wrap gap-2 pt-4 border-t border-slate-100 mt-auto">
+          {exp.skills.slice(0, 3).map((skill, skillIndex) => (
+            <span key={skillIndex} className="badge-blue text-[10px]">
+              {skill}
+            </span>
+          ))}
+          {exp.skills.length > 3 && (
+            <span className="badge-blue text-[10px] opacity-70">+{exp.skills.length - 3}</span>
+          )}
+        </motion.div>
+      </motion.div>
+    </motion.div>
+  );
+}
+
+// --- Komponen Home Utama ---
 export function Home() {
-  const experiences = [
+  const experiences: Experience[] = [
     {
       title: "Head of Liaison Officer Division",
       company: "IMPACT 6.0",
@@ -88,153 +191,273 @@ export function Home() {
     }
   ];
 
+  const [selectedExp, setSelectedExp] = useState<Experience | null>(null);
+  const scrollContainerRef = useRef<HTMLDivElement>(null);
+  const [isHovered, setIsHovered] = useState(false);
+
+  // Efek Ketikan
+  const [typedText, setTypedText] = useState("");
+  const fullText = "System And Information Technology undergraduate student at Institut Teknologi Bandung (ITB), passionate about software engineering, IoT, and system analysis.";
+
+  useEffect(() => {
+    let timeout: ReturnType<typeof setTimeout>;
+    let currentIndex = 0;
+
+    const type = () => {
+      if (currentIndex < fullText.length) {
+        setTypedText(fullText.slice(0, currentIndex + 1));
+        currentIndex++;
+        timeout = setTimeout(type, 35); 
+      }
+    };
+
+    const startDelay = setTimeout(type, 600);
+
+    return () => {
+      clearTimeout(timeout);
+      clearTimeout(startDelay);
+    };
+  }, []);
+
+  // Auto Scroll Logic (Setiap 2.5 Detik)
+  useEffect(() => {
+    let interval: ReturnType<typeof setInterval>;
+    
+    if (!isHovered && !selectedExp) {
+      interval = setInterval(() => {
+        if (scrollContainerRef.current) {
+          const container = scrollContainerRef.current;
+          const firstChild = container.children[0] as HTMLElement;
+          const scrollAmount = firstChild ? firstChild.offsetWidth + 24 : 350; 
+          
+          if (container.scrollLeft + container.clientWidth >= container.scrollWidth - 10) {
+            container.scrollTo({ left: 0, behavior: 'smooth' });
+          } else {
+            container.scrollTo({ left: container.scrollLeft + scrollAmount, behavior: 'smooth' });
+          }
+        }
+      }, 2500);
+    }
+
+    return () => clearInterval(interval);
+  }, [isHovered, selectedExp]);
+
   return (
-    <div className="flex flex-col items-center w-full gap-32 pb-20">
+    <div className="flex flex-col items-center w-full gap-24 pb-20 relative">
       
-      {/* Home Section (Hero Only) */}
-      <section id="home" className="w-full flex flex-col items-center">
-        <motion.div 
-          initial={{ opacity: 0, scale: 0.95 }}
-          animate={{ opacity: 1, scale: 1 }}
-          exit={{ opacity: 0, filter: "blur(5px)" }}
-          transition={{ duration: 0.6 }}
-          className="flex flex-col items-center justify-center min-h-[70vh] text-center w-full"
-        >
+      {/* Home Section (Hero - Style Referensi dengan Perubahan Monokrom) */}
+      {/* bg-transparent agar menyatu dengan background off-white website */}
+      <section id="home" className="w-full bg-transparent min-h-[90vh] flex items-end justify-center pt-20 overflow-hidden relative">
+        {/* Container Split Layout: flex-col-reverse agar teks di atas foto di mobile, md:flex-row untuk kiri-kanan di desktop */}
+        <div className="w-full max-w-6xl mx-auto px-6 md:px-12 flex flex-col md:flex-row items-center md:items-end justify-between h-full relative z-10">
+          
+          {/* Bagian Foto Profil (Kiri) - Setengah Badan, Wajah Terlihat & Efek Hover */}
           <motion.div
-            initial={{ y: 50, opacity: 0 }}
-            animate={{ y: 0, opacity: 1 }}
-            transition={{ delay: 0.2, duration: 0.8 }}
+            initial={{ opacity: 0, x: -50 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ duration: 0.8 }}
+            className="w-full md:w-1/2 flex justify-center md:justify-start items-end mt-10 md:mt-0"
           >
-            {/* Profile Picture */}
-            <motion.div
-              initial={{ scale: 0, opacity: 0 }}
-              animate={{ scale: 1, opacity: 1 }}
-              transition={{ delay: 0.1, type: "spring", stiffness: 100 }}
-              className="w-40 h-40 md:w-48 md:h-48 mx-auto mb-8 relative rounded-full p-1 bg-gradient-to-tr from-cyan-400 to-purple-600 shadow-[0_0_30px_rgba(0,243,255,0.4)]"
-            >
-              <div className="w-full h-full rounded-full overflow-hidden border-2 border-black bg-black">
-                <img 
-                  src="/assets/foto-profil.png" 
-                  alt="Farhan Izdiyad Profile" 
-                  className="w-full h-full object-cover opacity-90 hover:opacity-100 transition-opacity duration-300 filter grayscale-[20%] contrast-125"
-                />
-              </div>
-            </motion.div>
-
-            <h2 className="text-neon-blue tracking-[0.3em] uppercase text-sm mb-4 font-mono font-bold mt-2">
-              System Access Granted
-            </h2>
-            <h1 className="text-5xl md:text-7xl font-bold mb-6 tracking-tight text-white drop-shadow-[0_0_15px_rgba(255,255,255,0.2)]">
-              FARHAN <span className="text-transparent bg-clip-text bg-gradient-to-r from-neon-blue to-neon-purple drop-shadow-[0_0_10px_rgba(188,19,254,0.5)]">IZDIYAD</span>
-            </h1>
+            {/* PERBAIKAN: Tinggi container ditingkatkan secara signifikan agar menunjukkan setengah badan tanpa wajah terpotong */}
+            {/* Saya meningkatkan tinggi dari h-[400px] md:h-[520px] menjadi h-[500px] md:h-[650px] */}
+            <div className="relative w-full max-w-sm md:max-w-md lg:max-w-lg flex items-start justify-center overflow-hidden h-[500px] md:h-[650px]">
+              <img 
+                src={fotoProfil} 
+                alt="Farhan Izdiyad Profile" 
+                // Gunakan 'h-full object-cover object-top' agar kepala (bagian atas) yang difokuskan.
+                // EFEK HOVER: Saat di-hover, grayscale-0 dan warnanya kembali terang dengan transisi halus
+                className="w-full h-full object-cover object-top relative z-0 grayscale contrast-125 brightness-[0.8] opacity-90 transition-all duration-500 hover:grayscale-0 hover:contrast-100 hover:brightness-100 hover:opacity-100 cursor-pointer"
+              />
+              
+              {/* Efek Gradient memudar di bagian paling bawah pinggang agar potongannya halus */}
+              <div className="absolute bottom-0 left-0 right-0 h-32 bg-gradient-to-t from-slate-50 to-transparent z-10 pointer-events-none"></div>
+            </div>
           </motion.div>
-
-          <motion.p
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ delay: 0.6, duration: 1 }}
-            className="text-gray-400 max-w-2xl text-lg md:text-xl leading-relaxed mb-12 glass-panel p-6 rounded-2xl"
+          {/* Bagian Teks (Kanan) - Warna gelap agar kontras dengan background terang */}
+          <motion.div 
+            initial={{ opacity: 0, x: 50 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ duration: 0.8, delay: 0.2 }}
+            className="w-full md:w-1/2 pb-10 md:pb-32 flex flex-col items-center md:items-start text-center md:text-left"
           >
-            Halo! Saya Farhan Izdiyad, seorang mahasiswa Sistem dan Teknologi Informasi di Institut Teknologi Bandung (ITB). Saya memiliki minat besar dalam pengembangan perangkat lunak, khususnya sebagai Front-End Developer, serta rekayasa sistem yang efisien. Dalam keseharian, saya terbiasa bekerja dengan TypeScript, Python, dan C, baik untuk membangun antarmuka digital maupun merancang prototipe IoT berbasis mikrokontroler.
-            <br/><br/>
-            Hal yang paling memotivasi saya adalah menjembatani antara solusi teknis dan kebutuhan bisnis. Pengalaman saya sebagai Front-End Developer untuk Wisuda April ITB (WISPRIL) 2026 mengasah kemampuan saya dalam mengeksekusi proyek pengembangan web skala besar. Di sisi lain, peran saya di divisi Human Resources pada AMI 2026 telah memperkuat kemampuan saya dalam manajemen tim, evaluasi performa, dan perencanaan strategis.
-          </motion.p>
-
-          <motion.div
-            initial={{ scale: 0, opacity: 0 }}
-            animate={{ scale: 1, opacity: 1 }}
-            transition={{ delay: 1, type: "spring", stiffness: 100 }}
-          >
-            <a href="#about" onClick={(e) => {
-              e.preventDefault();
-              // @ts-ignore
-              if (window.lenis) {
-                // @ts-ignore
-                window.lenis.scrollTo('#about', { offset: -100, duration: 1.5 });
-              } else {
-                const el = document.getElementById('about');
-                if (el) {
-                  const y = el.getBoundingClientRect().top + window.scrollY - 100;
-                  window.scrollTo({ top: y, behavior: 'smooth' });
-                }
-              }
-            }} className="group relative inline-flex items-center justify-center px-8 py-3 font-bold text-white transition-all duration-300 bg-transparent border border-neon-blue rounded-full hover:bg-neon-blue hover:text-black hover:shadow-[0_0_20px_#00f3ff] overflow-hidden">
-              <span className="absolute inset-0 w-full h-full -mt-1 rounded-lg opacity-30 bg-gradient-to-b from-transparent via-transparent to-black"></span>
-              <span className="relative uppercase tracking-widest text-sm">Initialize Sequence</span>
+            {/* Tombol Back */}
+            <a href="#" className="text-sm text-slate-400 hover:text-[#0F172A] transition-colors mb-4 md:mb-6 flex items-center gap-2 tracking-wider">
+              &lt; back
             </a>
+            
+            {/* Nama / Judul Utama - Satu Baris */}
+            <h1 className="text-3xl md:text-4xl lg:text-5xl font-extrabold mb-2 tracking-wide uppercase leading-tight text-[#0F172A] md:whitespace-nowrap">
+              FARHAN IZDIYAD
+            </h1>
+
+            {/* Sub-judul Jurusan di bawah Nama */}
+            <h2 className="text-lg md:text-xl font-bold text-[#135CC5] mb-6 tracking-wide uppercase">
+              System And Information Technology
+            </h2>
+
+            {/* Deskripsi (Italic) dengan Efek Ketik */}
+            <p className="text-slate-600 italic font-light leading-relaxed mb-10 max-w-md text-sm md:text-base min-h-[80px]">
+              {typedText}
+              {/* Kursor Berkedip */}
+              <motion.span
+                animate={{ opacity: [1, 0, 1] }}
+                transition={{ repeat: Infinity, duration: 0.8, ease: "linear" }}
+                className="inline-block w-[2px] h-[1em] bg-slate-400 ml-1 align-middle"
+              />
+            </p>
+
+            {/* Garis Pemisah (Divider) */}
+            <div className="w-12 h-[2px] bg-slate-300 mb-10"></div>
+
+            {/* Ikon Sosial Media - Warna gelap */}
+            <div className="flex gap-6 text-slate-400 text-lg">
+              <a href="#" className="hover:text-[#135CC5] transition-colors"><FaLinkedin /></a>
+              <a href="#" className="hover:text-[#E1306C] transition-colors"><FaInstagram /></a>
+              <a href="#" className="hover:text-[#1DA1F2] transition-colors"><FaTwitter /></a>
+              <a href="#" className="hover:text-[#FF0000] transition-colors"><FaYoutube /></a>
+            </div>
           </motion.div>
-        </motion.div>
+          
+        </div>
       </section>
 
-      {/* Experience Timeline Section */}
-      <section id="experience" className="w-full flex flex-col items-center">
+      {/* Experience Auto-Scrolling Slider Section */}
+      <section id="experience" className="w-full flex flex-col items-center overflow-hidden">
         <motion.div 
-          initial={{ opacity: 0, y: 50 }}
+          initial={{ opacity: 0, y: 30 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: false, margin: "-100px" }}
-          transition={{ duration: 0.8 }}
-          className="w-full max-w-4xl pt-12"
+          transition={{ duration: 0.6 }}
+          className="w-full pt-12"
         >
-          <h2 className="text-3xl md:text-4xl font-bold mb-12 text-center text-glow text-neon-blue font-mono">
-            // EXPERIENCE_LOG
-          </h2>
+          <div className="text-center mb-12">
+            <h2 className="text-3xl md:text-4xl font-extrabold text-[#0F172A]">Experience</h2>
+            <p className="text-[#475569] mt-3">My professional journey. Hover to pause, click to expand.</p>
+          </div>
           
-          <div className="relative border-l border-cyan-500/30 ml-4 md:ml-0">
-            {experiences.map((exp, index) => (
-              <motion.div 
-                key={index}
-                initial={{ opacity: 0, x: -30 }}
-                whileInView={{ opacity: 1, x: 0 }}
-                viewport={{ once: false, margin: "-50px" }}
-                transition={{ delay: index * 0.1, duration: 0.5 }}
-                className="mb-10 ml-8 relative group"
-              >
-                {/* Timeline dot */}
-                <div className="absolute -left-[41px] top-1 h-5 w-5 rounded-full border-2 border-cyan-500 bg-black group-hover:bg-cyan-500 transition-colors duration-300 shadow-[0_0_10px_#00f3ff]" />
-                
-                <div className="glass-panel p-6 rounded-2xl border-l-2 border-l-cyan-500 hover:border-l-neon-purple transition-colors duration-300 flex flex-col sm:flex-row gap-6 items-start">
-                  
-                  {/* Photo / Logo Placeholder */}
-                  {exp.logo && (
-                    <div className="shrink-0 w-20 h-20 sm:w-24 sm:h-24 rounded-xl overflow-hidden border border-cyan-500/30 bg-black/50 shadow-[0_0_15px_rgba(0,243,255,0.1)] group-hover:border-neon-purple/50 transition-colors duration-300">
-                      <img 
-                        src={exp.logo} 
-                        alt={`${exp.company} logo`}
-                        className="w-full h-full object-cover opacity-80 group-hover:opacity-100 transition-opacity"
-                      />
-                    </div>
-                  )}
+          {/* Horizontal Slider Container */}
+          <div 
+            className="w-full relative"
+            onMouseEnter={() => setIsHovered(true)}
+            onMouseLeave={() => setIsHovered(false)}
+          >
+            {/* Fade Edges */}
+            <div className="absolute top-0 bottom-0 left-0 w-12 md:w-32 bg-gradient-to-r from-[var(--color-bg-page)] to-transparent z-10 pointer-events-none" />
+            <div className="absolute top-0 bottom-0 right-0 w-12 md:w-32 bg-gradient-to-l from-[var(--color-bg-page)] to-transparent z-10 pointer-events-none" />
 
-                  {/* Content */}
-                  <div className="flex-1">
-                    <span className="text-xs font-mono text-cyan-400 mb-2 block">{exp.date} &nbsp;|&nbsp; {exp.location}</span>
-                    <h3 className="text-xl font-bold text-white mb-1 group-hover:text-glow group-hover:text-neon-blue transition-all">{exp.title}</h3>
-                    <h4 className="text-md text-gray-300 mb-4">{exp.company}</h4>
-                    <p className="text-sm text-gray-400 leading-relaxed mb-4">
-                      {exp.description}
-                    </p>
-                    
-                    {/* Skill Badges */}
-                    {exp.skills && exp.skills.length > 0 && (
-                      <div className="flex flex-wrap gap-2 pt-4 border-t border-white/10">
-                        {exp.skills.map((skill, skillIndex) => (
-                          <span 
-                            key={skillIndex} 
-                            className="px-3 py-1 text-[10px] sm:text-xs font-mono rounded-full border border-neon-blue/30 bg-neon-blue/10 text-cyan-300 shadow-[0_0_5px_rgba(0,243,255,0.2)]"
-                          >
-                            {skill}
-                          </span>
-                        ))}
-                      </div>
-                    )}
-                  </div>
-
-                </div>
-              </motion.div>
-            ))}
+            <div 
+              ref={scrollContainerRef}
+              className="flex gap-6 overflow-x-auto no-scrollbar py-10 px-12 md:px-32 snap-x snap-mandatory items-stretch"
+              style={{ scrollBehavior: 'smooth' }}
+            >
+              {experiences.map((exp, index) => (
+                <motion.div 
+                  key={index} 
+                  className="snap-center stretch h-full py-4 origin-center"
+                  initial={{ opacity: 0.3, scale: 0.85, filter: "blur(2px)" }}
+                  whileInView={{ opacity: 1, scale: 1, filter: "blur(0px)" }}
+                  viewport={{ root: scrollContainerRef, amount: 0.4 }}
+                  transition={{ duration: 0.4, ease: "easeOut" }}
+                >
+                  <ExperienceCard 
+                    exp={exp} 
+                    onClick={() => setSelectedExp(exp)} 
+                    layoutIdPrefix={`exp-${index}`} 
+                  />
+                </motion.div>
+              ))}
+            </div>
           </div>
         </motion.div>
       </section>
+
+      {/* Expandable Modal Overlay for Experience */}
+      <AnimatePresence>
+        {selectedExp && (
+          <>
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              onClick={() => setSelectedExp(null)}
+              className="fixed inset-0 bg-slate-900/40 backdrop-blur-sm z-[100]"
+            />
+
+            <div className="fixed inset-0 flex items-center justify-center z-[101] pointer-events-none p-4 md:p-10">
+              <motion.div
+                layoutId={`exp-${experiences.findIndex(p => p.title === selectedExp.title)}-container`}
+                className="w-full max-w-2xl max-h-[90vh] bg-white rounded-3xl overflow-y-auto pointer-events-auto flex flex-col shadow-2xl relative p-8 md:p-12"
+              >
+                <motion.button
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  exit={{ opacity: 0 }}
+                  onClick={() => setSelectedExp(null)}
+                  className="absolute top-4 right-4 z-10 w-10 h-10 bg-slate-100 rounded-full flex items-center justify-center text-slate-700 hover:text-red-500 hover:bg-slate-200 transition-colors shadow-sm"
+                >
+                  <FaTimes />
+                </motion.button>
+
+                <div className="flex items-center gap-6 mb-8">
+                  {selectedExp.logo && (
+                    <motion.div 
+                      layoutId={`exp-${experiences.findIndex(p => p.title === selectedExp.title)}-logo-container`}
+                      className="shrink-0 w-20 h-20 sm:w-24 sm:h-24 rounded-2xl overflow-hidden border border-slate-100 bg-slate-50 flex items-center justify-center"
+                    >
+                      <motion.img 
+                        layoutId={`exp-${experiences.findIndex(p => p.title === selectedExp.title)}-logo`}
+                        src={selectedExp.logo} 
+                        alt={`${selectedExp.company} logo`}
+                        className="w-full h-full object-cover"
+                      />
+                    </motion.div>
+                  )}
+                  <div>
+                    <motion.span 
+                      layoutId={`exp-${experiences.findIndex(p => p.title === selectedExp.title)}-date`} 
+                      className="text-xs font-bold text-[#135CC5] block tracking-wide uppercase mb-1"
+                    >
+                      {selectedExp.date} &nbsp;&bull;&nbsp; {selectedExp.location}
+                    </motion.span>
+                    <motion.h4 
+                      layoutId={`exp-${experiences.findIndex(p => p.title === selectedExp.title)}-company`} 
+                      className="text-lg font-medium text-slate-600"
+                    >
+                      {selectedExp.company}
+                    </motion.h4>
+                  </div>
+                </div>
+
+                <motion.h3 
+                  layoutId={`exp-${experiences.findIndex(p => p.title === selectedExp.title)}-title`} 
+                  className="text-3xl md:text-4xl font-extrabold text-[#0F172A] mb-6"
+                >
+                  {selectedExp.title}
+                </motion.h3>
+                
+                <motion.div 
+                  layoutId={`exp-${experiences.findIndex(p => p.title === selectedExp.title)}-skills`} 
+                  className="flex flex-wrap gap-2 mb-8"
+                >
+                  {selectedExp.skills.map((skill, idx) => (
+                    <span key={idx} className="badge-blue px-3 py-1 text-xs">
+                      {skill}
+                    </span>
+                  ))}
+                </motion.div>
+
+                <motion.p 
+                  layoutId={`exp-${experiences.findIndex(p => p.title === selectedExp.title)}-desc`} 
+                  className="text-slate-600 text-base md:text-lg leading-relaxed whitespace-pre-wrap"
+                >
+                  {selectedExp.description}
+                </motion.p>
+
+              </motion.div>
+            </div>
+          </>
+        )}
+      </AnimatePresence>
 
       {/* About Section */}
       <section id="about" className="w-full">
