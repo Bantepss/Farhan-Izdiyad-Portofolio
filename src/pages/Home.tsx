@@ -1,6 +1,6 @@
 import { motion, AnimatePresence, useMotionValue, useSpring, useTransform } from 'framer-motion';
 import { useState, useRef, useEffect } from 'react';
-import { FaTimes, FaLinkedin, FaInstagram, FaTwitter, FaYoutube, FaGithub } from 'react-icons/fa';
+import { FaTimes, FaLinkedin, FaInstagram, FaGithub } from 'react-icons/fa';
 import fotoProfil from '../assets/FotoBantep1.jpeg';
 import { About } from './About';
 import { Projects } from './Projects';
