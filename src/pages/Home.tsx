@@ -2,10 +2,10 @@ import { motion, AnimatePresence, useMotionValue, useSpring, useTransform } from
 import { useState, useRef, useEffect } from 'react';
 import { FaTimes, FaLinkedin, FaInstagram, FaTwitter, FaYoutube } from 'react-icons/fa';
 import fotoProfil from '../assets/FotoBantep1.jpeg';
-import fotoProfil2 from '../assets/FotoBantep2.jpeg';
 import { About } from './About';
 import { Projects } from './Projects';
 import { Contact } from './Contact';
+import { Education } from './Education';
 
 // --- Tipe Data ---
 interface Experience {
@@ -245,60 +245,54 @@ export function Home() {
   return (
     <div className="flex flex-col items-center w-full gap-24 pb-20 relative">
       
-      {/* Home Section (Hero - Style Referensi dengan Perubahan Monokrom) */}
-      {/* bg-transparent agar menyatu dengan background off-white website */}
+      {/* Home Section (Hero - Animasi Scroll In & Scroll Out) */}
       <section id="home" className="w-full bg-transparent min-h-[90vh] flex items-end justify-center pt-20 overflow-hidden relative">
-        {/* Container Split Layout: flex-col-reverse agar teks di atas foto di mobile, md:flex-row untuk kiri-kanan di desktop */}
         <div className="w-full max-w-6xl mx-auto px-6 md:px-12 flex flex-col md:flex-row items-center md:items-end justify-between h-full relative z-10">
           
-          {/* Bagian Foto Profil (Kiri) - Setengah Badan, Wajah Terlihat & Efek Hover */}
+          {/* Bagian Foto Profil (Kiri) */}
           <motion.div
             initial={{ opacity: 0, x: -50 }}
-            animate={{ opacity: 1, x: 0 }}
+            // PERUBAHAN: Mengganti 'animate' menjadi 'whileInView'
+            whileInView={{ opacity: 1, x: 0 }}
+            // PERUBAHAN: Menambahkan viewport once: false agar bisa berulang
+            viewport={{ once: false, amount: 0.2 }}
             transition={{ duration: 0.8 }}
             className="w-full md:w-1/2 flex justify-center md:justify-start items-end mt-10 md:mt-0"
           >
-            {/* PERBAIKAN: Tinggi container ditingkatkan secara signifikan agar menunjukkan setengah badan tanpa wajah terpotong */}
-            {/* Saya meningkatkan tinggi dari h-[400px] md:h-[520px] menjadi h-[500px] md:h-[650px] */}
             <div className="relative w-full max-w-sm md:max-w-md lg:max-w-lg flex items-start justify-center overflow-hidden h-[500px] md:h-[650px]">
               <img 
                 src={fotoProfil} 
                 alt="Farhan Izdiyad Profile" 
-                // Gunakan 'h-full object-cover object-top' agar kepala (bagian atas) yang difokuskan.
-                // EFEK HOVER: Saat di-hover, grayscale-0 dan warnanya kembali terang dengan transisi halus
                 className="w-full h-full object-cover object-top relative z-0 grayscale contrast-125 brightness-[0.8] opacity-90 transition-all duration-500 hover:grayscale-0 hover:contrast-100 hover:brightness-100 hover:opacity-100 cursor-pointer"
               />
-              
-              {/* Efek Gradient memudar di bagian paling bawah pinggang agar potongannya halus */}
               <div className="absolute bottom-0 left-0 right-0 h-32 bg-gradient-to-t from-slate-50 to-transparent z-10 pointer-events-none"></div>
             </div>
           </motion.div>
-          {/* Bagian Teks (Kanan) - Warna gelap agar kontras dengan background terang */}
+
+          {/* Bagian Teks (Kanan) */}
           <motion.div 
             initial={{ opacity: 0, x: 50 }}
-            animate={{ opacity: 1, x: 0 }}
+            // PERUBAHAN: Mengganti 'animate' menjadi 'whileInView'
+            whileInView={{ opacity: 1, x: 0 }}
+            // PERUBAHAN: Menambahkan viewport once: false agar bisa berulang
+            viewport={{ once: false, amount: 0.2 }}
             transition={{ duration: 0.8, delay: 0.2 }}
             className="w-full md:w-1/2 pb-10 md:pb-32 flex flex-col items-center md:items-start text-center md:text-left"
           >
-            {/* Tombol Back */}
             <a href="#" className="text-sm text-slate-400 hover:text-[#0F172A] transition-colors mb-4 md:mb-6 flex items-center gap-2 tracking-wider">
               &lt; back
             </a>
             
-            {/* Nama / Judul Utama - Satu Baris */}
             <h1 className="text-3xl md:text-4xl lg:text-5xl font-extrabold mb-2 tracking-wide uppercase leading-tight text-[#0F172A] md:whitespace-nowrap">
               FARHAN IZDIYAD
             </h1>
 
-            {/* Sub-judul Jurusan di bawah Nama */}
-            <h2 className="text-lg md:text-xl font-bold text-[#135CC5] mb-6 tracking-wide uppercase">
+            <h2 className="text-lg md:text-xl font-bold text-[#135cc5] mb-6 tracking-wide uppercase">
               System And Information Technology
             </h2>
 
-            {/* Deskripsi (Italic) dengan Efek Ketik */}
             <p className="text-slate-600 italic font-light leading-relaxed mb-10 max-w-md text-sm md:text-base min-h-[80px]">
               {typedText}
-              {/* Kursor Berkedip */}
               <motion.span
                 animate={{ opacity: [1, 0, 1] }}
                 transition={{ repeat: Infinity, duration: 0.8, ease: "linear" }}
@@ -306,10 +300,8 @@ export function Home() {
               />
             </p>
 
-            {/* Garis Pemisah (Divider) */}
             <div className="w-12 h-[2px] bg-slate-300 mb-10"></div>
 
-            {/* Ikon Sosial Media - Warna gelap */}
             <div className="flex gap-6 text-slate-400 text-lg">
               <a href="#" className="hover:text-[#135CC5] transition-colors"><FaLinkedin /></a>
               <a href="#" className="hover:text-[#E1306C] transition-colors"><FaInstagram /></a>
@@ -462,6 +454,11 @@ export function Home() {
       {/* About Section */}
       <section id="about" className="w-full">
         <About />
+      </section>
+
+      {/* Education Section */}
+      <section id="education" className="w-full">
+        <Education />
       </section>
 
       {/* Projects Section */}
