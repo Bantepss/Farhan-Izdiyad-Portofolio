@@ -3,7 +3,7 @@
   "configVersion": 0,
   "workspaces": {
     "": {
-      "name": "temp-app",
+      "name": "FarhanIzdiyad.porto",
       "dependencies": {
         "@tailwindcss/vite": "^4.3.0",
         "clsx": "^2.1.1",
