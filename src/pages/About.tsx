@@ -82,7 +82,7 @@ export function About() {
                 Outside of my regular studies, I'm pretty active in various activities. From my experience as a student council (OSIS) officer back in high school, to my campus life where I served as a Human Resources staff member for AMI 2026 evaluating the IT staff's performance, handling UI/UX design for the April Graduation Parade (WISPRIL) 2026 committee, interning at the KM ITB student cabinet, and now I'm busy being part of the IMPACT 6.0 organizing committee.
               </p>
               <p className="text-slate-600 leading-relaxed">
-                When it comes to tech, I really enjoy exploring software development using C, Python, or TypeScript, as well as building IoT prototypes using Arduino and ESP32. But don't worry, I'm not always glued to my laptop! In my free time, I love hanging out at coffee shops, playing PC/mobile games like Valorant and Genshin Impact, going to live music concerts, editing videos on CapCut, or just playing cards and grabbing local warteg food with my friends. Nice to meet you all, I hope we can get to know each other quickly and have a great time working together!
+                When it comes to tech, I really enjoy exploring software development using C, Python, or TypeScript, as well as building IoT prototypes using Arduino and ESP32. But don't worry, I'm not always glued to my laptop! In my free time, I love hanging out at coffee shops, playing PC/mobile games like Valorant, going to live music concerts, editing videos on CapCut, or just playing cards and grabbing local food with my friends. Nice to meet you all, I hope we can get to know each other quickly and have a great time working together!
               </p>
             </div>
           </div>
