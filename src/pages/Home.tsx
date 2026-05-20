@@ -1,6 +1,6 @@
 import { motion, AnimatePresence, useMotionValue, useSpring, useTransform } from 'framer-motion';
 import { useState, useRef, useEffect } from 'react';
-import { FaTimes, FaLinkedin, FaInstagram, FaTwitter, FaYoutube } from 'react-icons/fa';
+import { FaTimes, FaLinkedin, FaInstagram, FaTwitter, FaYoutube, FaGithub } from 'react-icons/fa';
 import fotoProfil from '../assets/FotoBantep1.jpeg';
 import { About } from './About';
 import { Projects } from './Projects';
@@ -246,48 +246,44 @@ export function Home() {
     <div className="flex flex-col items-center w-full gap-24 pb-20 relative">
       
       {/* Home Section (Hero - Animasi Scroll In & Scroll Out) */}
-      <section id="home" className="w-full bg-transparent min-h-[90vh] flex items-end justify-center pt-20 overflow-hidden relative">
-        <div className="w-full max-w-6xl mx-auto px-6 md:px-12 flex flex-col md:flex-row items-center md:items-end justify-between h-full relative z-10">
+      <section id="home" className="w-full bg-transparent min-h-[85vh] flex items-center justify-center pt-24 pb-12 overflow-hidden relative">
+        <div className="w-full max-w-6xl mx-auto px-6 md:px-12 flex flex-col md:flex-row items-center justify-between relative z-10 gap-12 md:gap-8">
           
           {/* Bagian Foto Profil (Kiri) */}
           <motion.div
             initial={{ opacity: 0, x: -50 }}
-            // PERUBAHAN: Mengganti 'animate' menjadi 'whileInView'
             whileInView={{ opacity: 1, x: 0 }}
-            // PERUBAHAN: Menambahkan viewport once: false agar bisa berulang
             viewport={{ once: false, amount: 0.2 }}
             transition={{ duration: 0.8 }}
-            className="w-full md:w-1/2 flex justify-center md:justify-start items-end mt-10 md:mt-0"
+            // PERBAIKAN: Menambahkan margin-top negatif (-mt-4 di mobile, -mt-16 di desktop) agar gambar ditarik naik
+            className="w-full md:w-1/2 flex justify-center md:justify-start -mt-4 md:-mt-16"
           >
-            <div className="relative w-full max-w-sm md:max-w-md lg:max-w-lg flex items-start justify-center overflow-hidden h-[500px] md:h-[650px]">
+            <div className="relative w-full max-w-xs sm:max-w-sm md:max-w-md lg:max-w-lg flex items-start justify-center overflow-hidden h-[450px] md:h-[550px] lg:h-[600px]">
               <img 
                 src={fotoProfil} 
                 alt="Farhan Izdiyad Profile" 
                 className="w-full h-full object-cover object-top relative z-0 grayscale contrast-125 brightness-[0.8] opacity-90 transition-all duration-500 hover:grayscale-0 hover:contrast-100 hover:brightness-100 hover:opacity-100 cursor-pointer"
               />
-              <div className="absolute bottom-0 left-0 right-0 h-32 bg-gradient-to-t from-slate-50 to-transparent z-10 pointer-events-none"></div>
+              <div className="absolute bottom-0 left-0 right-0 h-32 bg-gradient-to-t from-[var(--color-bg-page)] to-transparent z-10 pointer-events-none"></div>
             </div>
           </motion.div>
 
           {/* Bagian Teks (Kanan) */}
           <motion.div 
             initial={{ opacity: 0, x: 50 }}
-            // PERUBAHAN: Mengganti 'animate' menjadi 'whileInView'
             whileInView={{ opacity: 1, x: 0 }}
-            // PERUBAHAN: Menambahkan viewport once: false agar bisa berulang
             viewport={{ once: false, amount: 0.2 }}
             transition={{ duration: 0.8, delay: 0.2 }}
-            className="w-full md:w-1/2 pb-10 md:pb-32 flex flex-col items-center md:items-start text-center md:text-left"
+            // PERBAIKAN: Menghapus pb-8 dan pb-16 agar teks tidak terdorong ke atas dan bisa sejajar tengah dengan foto
+            className="w-full md:w-1/2 flex flex-col items-center md:items-start text-center md:text-left"
           >
-            <a href="#" className="text-sm text-slate-400 hover:text-[#0F172A] transition-colors mb-4 md:mb-6 flex items-center gap-2 tracking-wider">
-              &lt; back
-            </a>
+
             
-            <h1 className="text-3xl md:text-4xl lg:text-5xl font-extrabold mb-2 tracking-wide uppercase leading-tight text-[#0F172A] md:whitespace-nowrap">
+            <h1 className="text-3xl sm:text-4xl md:text-4xl lg:text-5xl font-extrabold mb-2 tracking-wide uppercase leading-tight text-[#0F172A] md:whitespace-nowrap">
               FARHAN IZDIYAD
             </h1>
 
-            <h2 className="text-lg md:text-xl font-bold text-[#135cc5] mb-6 tracking-wide uppercase">
+            <h2 className="text-lg sm:text-xl md:text-lg lg:text-xl font-bold text-[#135cc5] mb-6 tracking-wide uppercase">
               System And Information Technology
             </h2>
 
@@ -303,10 +299,9 @@ export function Home() {
             <div className="w-12 h-[2px] bg-slate-300 mb-10"></div>
 
             <div className="flex gap-6 text-slate-400 text-lg">
-              <a href="#" className="hover:text-[#135CC5] transition-colors"><FaLinkedin /></a>
-              <a href="#" className="hover:text-[#E1306C] transition-colors"><FaInstagram /></a>
-              <a href="#" className="hover:text-[#1DA1F2] transition-colors"><FaTwitter /></a>
-              <a href="#" className="hover:text-[#FF0000] transition-colors"><FaYoutube /></a>
+              <a href="https://www.linkedin.com/in/farhan-izdiyad-726a80337/" className="hover:text-[#135CC5] transition-colors"><FaLinkedin /></a>
+              <a href="https://www.instagram.com/farhanizdiyad/" className="hover:text-[#E1306C] transition-colors"><FaInstagram /></a>
+              <a href="https://github.com/Bantepss" className="hover:text-[#000000] transition-colors"><FaGithub /></a>
             </div>
           </motion.div>
           
