@@ -42,6 +42,14 @@
   .badge-blue {
     @apply bg-blue-50 text-[var(--color-brand-primary)] border border-blue-100 px-3 py-1 rounded-full text-xs font-semibold uppercase tracking-wider;
   }
+
+  .no-scrollbar {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+  .no-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
 }
 
 /* Custom scrollbar for webkit */

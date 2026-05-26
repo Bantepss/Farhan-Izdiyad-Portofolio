@@ -1,4 +1,4 @@
-import { motion, AnimatePresence, useMotionValue, useSpring, useTransform } from 'framer-motion';
+import { motion, AnimatePresence, useMotionValue, useSpring, useTransform, useAnimationFrame } from 'framer-motion';
 import { useState, useRef, useEffect } from 'react';
 import { FaTimes, FaLinkedin, FaInstagram, FaGithub } from 'react-icons/fa';
 import fotoProfil from '../assets/FotoBantep1.jpeg';
@@ -192,8 +192,133 @@ export function Home() {
   ];
 
   const [selectedExp, setSelectedExp] = useState<Experience | null>(null);
-  const scrollContainerRef = useRef<HTMLDivElement>(null);
+  // selectedKey = DOM-index card yang diklik. Karena marquee menduplikasi cards 3x,
+  // tiap copy butuh layoutId unik (`exp-${index}`). Modal pakai layoutId yang sama
+  // dengan card yang diklik, supaya morph berangkat dari posisi yang benar.
+  const [selectedKey, setSelectedKey] = useState<number>(0);
   const [isHovered, setIsHovered] = useState(false);
+  // wasDraggingRef ditandai TRUE saat user benar-benar drag (>5px), dipakai onClick
+  // card untuk membedakan tap-asli dari akhir-drag.
+  const wasDraggingRef = useRef(false);
+
+  // --- Marquee Slider: native scrollLeft + auto-drift via RAF ---
+  // Pendekatan native: container pakai overflow-x-auto, scrollLeft di-poke RAF tiap
+  // frame. Touch swipe, trackpad horizontal scroll, dan scrollbar drag SEMUA otomatis
+  // bekerja karena browser yang handle. Mouse drag ditambahkan via pointer events.
+  const scrollerRef = useRef<HTMLDivElement>(null);
+  const [setWidth, setSetWidth] = useState(0); // lebar 1 set experiences
+  // Pause RAF: bila false → drift berjalan, true → drift berhenti.
+  // Tidak pakai spring smooth-speed lagi karena scrollLeft tidak terlihat "kaku"
+  // saat di-start/stop — beda dengan transform yang transisinya tajam.
+  const isPausedRef = useRef(false);
+  // Jeda re-resume setelah user terakhir interact: 800ms.
+  const interactionCooldownRef = useRef(0);
+
+  useEffect(() => {
+    isPausedRef.current = isHovered || !!selectedExp;
+  }, [isHovered, selectedExp]);
+
+  // Ukur lebar 1 set. Track diisi 3x experiences → setWidth = scrollWidth/3.
+  useEffect(() => {
+    if (!scrollerRef.current) return;
+    const measure = () => {
+      if (scrollerRef.current) {
+        const w = scrollerRef.current.scrollWidth / 3;
+        setSetWidth(w);
+        // Mulai dari awal set tengah, supaya drag kiri & kanan punya runway.
+        if (scrollerRef.current.scrollLeft === 0) {
+          scrollerRef.current.scrollLeft = w;
+        }
+      }
+    };
+    measure();
+    const ro = new ResizeObserver(measure);
+    ro.observe(scrollerRef.current);
+    return () => ro.disconnect();
+  }, []);
+
+  // Wrap: jaga scrollLeft tetap di range [setWidth, 2*setWidth] (set tengah).
+  // Karena 3 set duplikat identik, lompat ±setWidth tidak terlihat.
+  const wrapScroll = (c: HTMLDivElement) => {
+    if (setWidth === 0) return;
+    if (c.scrollLeft >= setWidth * 2) c.scrollLeft -= setWidth;
+    else if (c.scrollLeft < setWidth) c.scrollLeft += setWidth;
+  };
+
+  // Bedakan scrollLeft yang diset oleh RAF vs oleh user. Flag ini diset TRUE tepat
+  // sebelum RAF poke scrollLeft, lalu dibaca di scroll handler agar tidak men-trigger
+  // cooldown pause yang false-positive.
+  const programmaticScrollRef = useRef(false);
+
+  useAnimationFrame((_t, delta) => {
+    const c = scrollerRef.current;
+    if (!c || setWidth === 0) return;
+    if (isPausedRef.current) return;
+    // Cooldown setelah user interaksi: tunggu 800ms baru lanjut drift.
+    if (interactionCooldownRef.current > 0) {
+      interactionCooldownRef.current = Math.max(0, interactionCooldownRef.current - delta);
+      return;
+    }
+    const SPEED = 75; // px/detik
+    const px = (SPEED * delta) / 1000;
+    programmaticScrollRef.current = true;
+    c.scrollLeft += px;
+    wrapScroll(c);
+  });
+
+  // Listener scroll: handle wrap saat user yang melakukan scroll (touch/trackpad/drag).
+  useEffect(() => {
+    const c = scrollerRef.current;
+    if (!c) return;
+    const onScroll = () => {
+      if (programmaticScrollRef.current) {
+        programmaticScrollRef.current = false;
+        return;
+      }
+      // User-initiated scroll → tunda drift berikutnya.
+      interactionCooldownRef.current = 800;
+      wrapScroll(c);
+    };
+    c.addEventListener('scroll', onScroll, { passive: true });
+    return () => c.removeEventListener('scroll', onScroll);
+  }, [setWidth]);
+
+  // Mouse drag: native overflow-x-auto tidak melayani drag-mouse di area card
+  // (browser tidak punya UX itu by default). Kita tambah pointer events untuk mouse.
+  // Touch & pen biarkan native handle (overflow-x-auto sudah jalan).
+  //
+  // PENTING: kita TIDAK pakai setPointerCapture — itu akan men-redirect event ke
+  // scroller dan membuat click di card tidak fire. Window listener saja sudah
+  // cukup untuk track gerakan ke manapun cursor pergi.
+  const handlePointerDown = (e: React.PointerEvent<HTMLDivElement>) => {
+    if (e.pointerType !== 'mouse') return;
+    const c = scrollerRef.current;
+    if (!c) return;
+    const startX = e.clientX;
+    const startScroll = c.scrollLeft;
+    wasDraggingRef.current = false;
+
+    const onMove = (ev: PointerEvent) => {
+      const dx = ev.clientX - startX;
+      if (Math.abs(dx) <= 5) return; // tap kecil → biarkan, jangan trigger drag
+      wasDraggingRef.current = true;
+      programmaticScrollRef.current = true;
+      c.scrollLeft = startScroll - dx;
+      interactionCooldownRef.current = 800;
+    };
+    const onUp = () => {
+      window.removeEventListener('pointermove', onMove);
+      window.removeEventListener('pointerup', onUp);
+      window.removeEventListener('pointercancel', onUp);
+      // Reset flag setelah click yang mungkin nyusul (untuk membedakan tap dari drag).
+      setTimeout(() => {
+        wasDraggingRef.current = false;
+      }, 120);
+    };
+    window.addEventListener('pointermove', onMove);
+    window.addEventListener('pointerup', onUp);
+    window.addEventListener('pointercancel', onUp);
+  };
 
   // Efek Ketikan
   const [typedText, setTypedText] = useState("");
@@ -219,28 +344,6 @@ export function Home() {
     };
   }, []);
 
-  // Auto Scroll Logic (Setiap 2.5 Detik)
-  useEffect(() => {
-    let interval: ReturnType<typeof setInterval>;
-    
-    if (!isHovered && !selectedExp) {
-      interval = setInterval(() => {
-        if (scrollContainerRef.current) {
-          const container = scrollContainerRef.current;
-          const firstChild = container.children[0] as HTMLElement;
-          const scrollAmount = firstChild ? firstChild.offsetWidth + 24 : 350; 
-          
-          if (container.scrollLeft + container.clientWidth >= container.scrollWidth - 10) {
-            container.scrollTo({ left: 0, behavior: 'smooth' });
-          } else {
-            container.scrollTo({ left: container.scrollLeft + scrollAmount, behavior: 'smooth' });
-          }
-        }
-      }, 2500);
-    }
-
-    return () => clearInterval(interval);
-  }, [isHovered, selectedExp]);
 
   return (
     <div className="flex flex-col items-center w-full gap-24 pb-20 relative">
@@ -322,9 +425,9 @@ export function Home() {
             <p className="text-[#475569] mt-3">My professional journey. Hover to pause, click to expand.</p>
           </div>
           
-          {/* Horizontal Slider Container */}
-          <div 
-            className="w-full relative"
+          {/* Marquee Slider Container */}
+          <div
+            className="w-full relative overflow-hidden"
             onMouseEnter={() => setIsHovered(true)}
             onMouseLeave={() => setIsHovered(false)}
           >
@@ -332,26 +435,23 @@ export function Home() {
             <div className="absolute top-0 bottom-0 left-0 w-12 md:w-32 bg-gradient-to-r from-[var(--color-bg-page)] to-transparent z-10 pointer-events-none" />
             <div className="absolute top-0 bottom-0 right-0 w-12 md:w-32 bg-gradient-to-l from-[var(--color-bg-page)] to-transparent z-10 pointer-events-none" />
 
-            <div 
-              ref={scrollContainerRef}
-              className="flex gap-6 overflow-x-auto no-scrollbar py-10 px-12 md:px-32 snap-x snap-mandatory items-stretch"
-              style={{ scrollBehavior: 'smooth' }}
+            <div
+              ref={scrollerRef}
+              onPointerDown={handlePointerDown}
+              className="flex gap-6 py-10 items-stretch overflow-x-auto no-scrollbar cursor-grab active:cursor-grabbing select-none"
             >
-              {experiences.map((exp, index) => (
-                <motion.div 
-                  key={index} 
-                  className="snap-center stretch h-full py-4 origin-center"
-                  initial={{ opacity: 0.3, scale: 0.85, filter: "blur(2px)" }}
-                  whileInView={{ opacity: 1, scale: 1, filter: "blur(0px)" }}
-                  viewport={{ root: scrollContainerRef, amount: 0.4 }}
-                  transition={{ duration: 0.4, ease: "easeOut" }}
-                >
-                  <ExperienceCard 
-                    exp={exp} 
-                    onClick={() => setSelectedExp(exp)} 
-                    layoutIdPrefix={`exp-${index}`} 
+              {[...experiences, ...experiences, ...experiences].map((exp, index) => (
+                <div key={index} className="h-full py-4 shrink-0">
+                  <ExperienceCard
+                    exp={exp}
+                    onClick={() => {
+                      if (wasDraggingRef.current) return;
+                      setSelectedExp(exp);
+                      setSelectedKey(index);
+                    }}
+                    layoutIdPrefix={`exp-${index}`}
                   />
-                </motion.div>
+                </div>
               ))}
             </div>
           </div>
@@ -372,7 +472,7 @@ export function Home() {
 
             <div className="fixed inset-0 flex items-center justify-center z-[101] pointer-events-none p-4 md:p-10">
               <motion.div
-                layoutId={`exp-${experiences.findIndex(p => p.title === selectedExp.title)}-container`}
+                layoutId={`exp-${selectedKey}-container`}
                 className="w-full max-w-2xl max-h-[90vh] bg-white rounded-3xl overflow-y-auto pointer-events-auto flex flex-col shadow-2xl relative p-8 md:p-12"
               >
                 <motion.button
@@ -387,27 +487,27 @@ export function Home() {
 
                 <div className="flex items-center gap-6 mb-8">
                   {selectedExp.logo && (
-                    <motion.div 
-                      layoutId={`exp-${experiences.findIndex(p => p.title === selectedExp.title)}-logo-container`}
+                    <motion.div
+                      layoutId={`exp-${selectedKey}-logo-container`}
                       className="shrink-0 w-20 h-20 sm:w-24 sm:h-24 rounded-2xl overflow-hidden border border-slate-100 bg-slate-50 flex items-center justify-center"
                     >
-                      <motion.img 
-                        layoutId={`exp-${experiences.findIndex(p => p.title === selectedExp.title)}-logo`}
-                        src={selectedExp.logo} 
+                      <motion.img
+                        layoutId={`exp-${selectedKey}-logo`}
+                        src={selectedExp.logo}
                         alt={`${selectedExp.company} logo`}
                         className="w-full h-full object-cover"
                       />
                     </motion.div>
                   )}
                   <div>
-                    <motion.span 
-                      layoutId={`exp-${experiences.findIndex(p => p.title === selectedExp.title)}-date`} 
+                    <motion.span
+                      layoutId={`exp-${selectedKey}-date`}
                       className="text-xs font-bold text-[#135CC5] block tracking-wide uppercase mb-1"
                     >
                       {selectedExp.date} &nbsp;&bull;&nbsp; {selectedExp.location}
                     </motion.span>
-                    <motion.h4 
-                      layoutId={`exp-${experiences.findIndex(p => p.title === selectedExp.title)}-company`} 
+                    <motion.h4
+                      layoutId={`exp-${selectedKey}-company`}
                       className="text-lg font-medium text-slate-600"
                     >
                       {selectedExp.company}
@@ -415,15 +515,15 @@ export function Home() {
                   </div>
                 </div>
 
-                <motion.h3 
-                  layoutId={`exp-${experiences.findIndex(p => p.title === selectedExp.title)}-title`} 
+                <motion.h3
+                  layoutId={`exp-${selectedKey}-title`}
                   className="text-3xl md:text-4xl font-extrabold text-[#0F172A] mb-6"
                 >
                   {selectedExp.title}
                 </motion.h3>
-                
-                <motion.div 
-                  layoutId={`exp-${experiences.findIndex(p => p.title === selectedExp.title)}-skills`} 
+
+                <motion.div
+                  layoutId={`exp-${selectedKey}-skills`}
                   className="flex flex-wrap gap-2 mb-8"
                 >
                   {selectedExp.skills.map((skill, idx) => (
@@ -433,13 +533,12 @@ export function Home() {
                   ))}
                 </motion.div>
 
-                <motion.p 
-                  layoutId={`exp-${experiences.findIndex(p => p.title === selectedExp.title)}-desc`} 
+                <motion.p
+                  layoutId={`exp-${selectedKey}-desc`}
                   className="text-slate-600 text-base md:text-lg leading-relaxed whitespace-pre-wrap"
                 >
                   {selectedExp.description}
                 </motion.p>
-
               </motion.div>
             </div>
           </>

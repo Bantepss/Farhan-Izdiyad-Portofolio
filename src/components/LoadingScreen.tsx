@@ -6,143 +6,112 @@ interface LoadingScreenProps {
   onComplete: () => void;
 }
 
-export function LoadingScreen({ isVisible, onComplete }: LoadingScreenProps) {
-  const [count, setCount] = useState(0);
-  const [phase, setPhase] = useState<'counting' | 'text' | 'exit'>('counting');
+// ========================================================
+// Konten intro. Ubah teks di sini.
+// ========================================================
+const NAME = 'Farhan Izdiyad';
+const SUB = 'Portfolio · 2026';
 
-  // ========================================================
-  // UBAH KATA-KATA INTRO DI SINI
-  // ========================================================
-  const introWord = "Farhan Izdiyad."; 
-  
+// power4.out GSAP ≡ cubic-bezier(0.165, 0.84, 0.44, 1)
+const POWER4_OUT = [0.165, 0.84, 0.44, 1] as const;
+
+// Tempo
+const REVEAL_DUR = 1.2;    // durasi mask-reveal tiap huruf (detik)
+const STAGGER = 0.045;     // jeda antar huruf
+const SUB_DELAY = 0.9;     // sub-teks muncul
+const LINE_DELAY = 1.05;   // garis aksen mulai
+const HOLD_MS = 700;       // diam setelah elemen masuk semua
+const EXIT_DUR = 1.2;      // durasi slide-up exit
+
+const LETTERS = NAME.split('');
+
+export function LoadingScreen({ isVisible, onComplete }: LoadingScreenProps) {
+  const [phase, setPhase] = useState<'in' | 'exit' | 'done'>('in');
+
   useEffect(() => {
     if (!isVisible) return;
 
-    let start = 0;
-    const end = 100;
-    const duration = 1400; 
-    const incrementTime = (duration / end);
+    const inEnd = (0.1 + LETTERS.length * STAGGER + REVEAL_DUR * 0.6) * 1000;
 
-    const timer = setInterval(() => {
-      start += 1;
-      setCount(start);
-      if (start === end) {
-        clearInterval(timer);
-        setTimeout(() => setPhase('text'), 300);
-      }
-    }, incrementTime);
+    const t1 = setTimeout(() => setPhase('exit'), inEnd + HOLD_MS);
+    const t2 = setTimeout(
+      () => {
+        setPhase('done');
+        onComplete();
+      },
+      inEnd + HOLD_MS + EXIT_DUR * 1000,
+    );
 
-    return () => clearInterval(timer);
-  }, [isVisible]);
+    return () => {
+      clearTimeout(t1);
+      clearTimeout(t2);
+    };
+  }, [isVisible, onComplete]);
 
-  useEffect(() => {
-    if (phase === 'text') {
-      setTimeout(() => setPhase('exit'), 1200); 
-    } else if (phase === 'exit') {
-      setTimeout(() => onComplete(), 1000); 
-    }
-  }, [phase, onComplete]);
+  if (phase === 'done') return null;
 
-  // PERBAIKAN: Menggunakan ': any' untuk mem-bypass error TS yang cerewet
-  const containerVariants: any = {
-    animate: {
+  const letterVariants = {
+    hidden: { y: '110%' },
+    visible: (i: number) => ({
+      y: '0%',
       transition: {
-        staggerChildren: 0.04, 
-      }
-    }
-  };
-
-  const letterVariants: any = {
-    initial: { y: "100%" },
-    animate: { 
-      y: "0%", // PERBAIKAN: Disamakan menjadi string (teks) agar TS tidak bingung
-      transition: { duration: 0.7, ease: [0.215, 0.610, 0.355, 1] } 
-    }
+        delay: 0.1 + i * STAGGER,
+        duration: REVEAL_DUR,
+        ease: POWER4_OUT,
+      },
+    }),
   };
 
   return (
     <AnimatePresence>
       {isVisible && (
         <motion.div
-          initial={{ opacity: 1 }}
-          exit={{ y: "-100%" }}
-          transition={{ duration: 0.8, ease: [0.76, 0, 0.24, 1] }}
-          className="fixed inset-0 z-[100] bg-[#0F172A] flex flex-col justify-between p-8 md:p-12 font-sans overflow-hidden text-white select-none"
+          initial={false}
+          animate={phase === 'exit' ? { y: '-100%' } : { y: 0 }}
+          transition={{ duration: EXIT_DUR, ease: POWER4_OUT }}
+          className="fixed inset-0 z-[100] bg-[#0F172A] flex flex-col items-center justify-center px-6 overflow-hidden select-none"
         >
-          {/* Bagian Atas / Ornamen Teks */}
-          <div className="flex justify-between items-start">
-             <motion.span 
-               initial={{ opacity: 0, y: -10 }}
-               animate={{ opacity: 0.6, y: 0 }}
-               transition={{ duration: 0.5, delay: 0.2 }}
-               className="text-xs md:text-sm font-medium tracking-[0.2em] uppercase font-['Quicksand']"
-             >
-               Portfolio
-             </motion.span>
-             <motion.span 
-               initial={{ opacity: 0, y: -10 }}
-               animate={{ opacity: 0.6, y: 0 }}
-               transition={{ duration: 0.5, delay: 0.2 }}
-               className="text-xs md:text-sm font-medium tracking-[0.2em] uppercase font-['Quicksand']"
-             >
-               2026©
-             </motion.span>
-          </div>
+          {/* Wordmark serif — mask reveal per huruf */}
+          <h1
+            aria-label={NAME}
+            className="font-['Playfair_Display'] text-white font-semibold tracking-tight leading-[1] text-center text-5xl sm:text-7xl md:text-8xl flex"
+          >
+            {LETTERS.map((ch, i) => (
+              <span
+                key={i}
+                className="inline-block overflow-hidden"
+                style={{ marginRight: ch === ' ' ? '0.22em' : undefined }}
+              >
+                <motion.span
+                  custom={i}
+                  variants={letterVariants}
+                  initial="hidden"
+                  animate="visible"
+                  className="inline-block will-change-transform"
+                >
+                  {ch === ' ' ? ' ' : ch}
+                </motion.span>
+              </span>
+            ))}
+          </h1>
 
-          {/* Bagian Tengah / Teks Utama */}
-          <div className="flex flex-col items-center justify-center flex-1 w-full">
-            <AnimatePresence mode="wait">
-              {phase === 'counting' ? (
-                <motion.div
-                  key="counter"
-                  initial={{ opacity: 0, scale: 0.8 }}
-                  animate={{ opacity: 1, scale: 1 }}
-                  exit={{ opacity: 0, y: -40, transition: { duration: 0.3 } }}
-                  transition={{ type: "spring", stiffness: 70 }}
-                  className="text-6xl md:text-8xl lg:text-9xl font-['Quicksand'] font-bold text-[#135CC5]"
-                >
-                  {count}%
-                </motion.div>
-              ) : (
-                /* Animasi Huruf Mengalir */
-                <motion.h1
-                  key="text"
-                  variants={containerVariants}
-                  initial="initial"
-                  animate="animate"
-                  className="flex flex-wrap justify-center text-4xl md:text-6xl lg:text-7xl tracking-tight font-['Quicksand'] font-bold text-center px-4 overflow-hidden py-2"
-                >
-                  {introWord.split("").map((char, index) => (
-                    <span 
-                      key={index} 
-                      className="inline-block overflow-hidden relative"
-                      style={{ verticalAlign: "bottom" }}
-                    >
-                      <motion.span
-                        variants={letterVariants}
-                        className="inline-block"
-                        style={{ marginRight: char === " " ? "0.25em" : "0" }}
-                      >
-                        {char}
-                      </motion.span>
-                    </span>
-                  ))}
-                </motion.h1>
-              )}
-            </AnimatePresence>
-          </div>
-          
-          {/* Bagian Bawah / Loading Bar */}
-          <div className="w-full">
-            <div className="h-[2px] w-full bg-white/10 overflow-hidden relative">
-               <motion.div 
-                 className="absolute top-0 left-0 bottom-0 bg-white"
-                 initial={{ width: "0%" }}
-                 animate={{ width: `${count}%` }}
-                 transition={{ ease: "linear", duration: 0.05 }}
-               />
-            </div>
-          </div>
+          {/* Garis aksen tipis di bawah wordmark — draw kiri ke kanan */}
+          <motion.span
+            initial={{ scaleX: 0 }}
+            animate={{ scaleX: 1 }}
+            transition={{ delay: LINE_DELAY, duration: 1.0, ease: POWER4_OUT }}
+            className="mt-8 block w-24 h-px bg-white/40 origin-left"
+          />
+
+          {/* Sub-teks — fade + translateY halus */}
+          <motion.p
+            initial={{ opacity: 0, y: 12 }}
+            animate={{ opacity: 0.55, y: 0 }}
+            transition={{ delay: SUB_DELAY, duration: 1.0, ease: POWER4_OUT }}
+            className="mt-5 font-['Quicksand'] text-[10px] md:text-xs tracking-[0.4em] uppercase text-white/60"
+          >
+            {SUB}
+          </motion.p>
         </motion.div>
       )}
     </AnimatePresence>
