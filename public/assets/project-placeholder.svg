@@ -1,0 +1,24 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="800" height="500" viewBox="0 0 800 500" fill="none" role="img" aria-label="Project preview placeholder">
+  <defs>
+    <linearGradient id="pp-bg" x1="0" y1="0" x2="800" y2="500" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#0C3BAA"/>
+      <stop offset="0.55" stop-color="#135CC5"/>
+      <stop offset="1" stop-color="#3B82F6"/>
+    </linearGradient>
+    <radialGradient id="pp-glow" cx="0.7" cy="0.25" r="0.8">
+      <stop stop-color="#FFFFFF" stop-opacity="0.35"/>
+      <stop offset="1" stop-color="#FFFFFF" stop-opacity="0"/>
+    </radialGradient>
+    <pattern id="pp-grid" width="40" height="40" patternUnits="userSpaceOnUse">
+      <path d="M40 0 H0 V40" fill="none" stroke="#FFFFFF" stroke-opacity="0.08" stroke-width="1"/>
+    </pattern>
+  </defs>
+  <rect width="800" height="500" fill="url(#pp-bg)"/>
+  <rect width="800" height="500" fill="url(#pp-grid)"/>
+  <rect width="800" height="500" fill="url(#pp-glow)"/>
+  <g transform="translate(400 250)" fill="#FFFFFF" fill-opacity="0.95">
+    <path d="M-60 -34 L0 -68 L60 -34 L60 34 L0 68 L-60 34 Z" fill="none" stroke="#FFFFFF" stroke-opacity="0.45" stroke-width="2"/>
+    <path d="M-26 -15 L0 -30 L26 -15 L26 15 L0 30 L-26 15 Z"/>
+  </g>
+  <text x="400" y="430" text-anchor="middle" font-family="Poppins, Inter, sans-serif" font-size="26" font-weight="600" fill="#FFFFFF" fill-opacity="0.9" letter-spacing="6">PROJECT PREVIEW</text>
+</svg>

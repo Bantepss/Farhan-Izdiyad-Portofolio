@@ -1,11 +1,19 @@
 import { motion, AnimatePresence, useMotionValue, useSpring, useTransform, useAnimationFrame } from 'framer-motion';
 import { useState, useRef, useEffect } from 'react';
 import { FaTimes, FaLinkedin, FaInstagram, FaGithub } from 'react-icons/fa';
+import { FiArrowRight, FiArrowUpRight } from 'react-icons/fi';
 import fotoProfil from '../assets/FotoBantep1.jpeg';
 import { About } from './About';
 import { Projects } from './Projects';
 import { Contact } from './Contact';
 import { Education } from './Education';
+import { LogoMarquee } from '../components/LogoMarquee';
+
+const scrollToId = (id: string) => {
+  // Lenis instance ditaruh di window oleh RootLayout (lihat src/types/global.d.ts)
+  if (window.__lenis) window.__lenis.scrollTo(`#${id}`, { offset: -80, duration: 1.2 });
+  else document.getElementById(id)?.scrollIntoView({ behavior: 'smooth' });
+};
 
 // --- Tipe Data ---
 interface Experience {
@@ -53,44 +61,44 @@ function ExperienceCard({ exp, onClick, layoutIdPrefix }: { exp: Experience, onC
       style={{ rotateX, rotateY, transformStyle: "preserve-3d" }}
       className="cursor-pointer perspective-[1000px] shrink-0 w-[300px] sm:w-[350px] md:w-[400px] h-full"
     >
-      <motion.div 
+      <motion.div
         layoutId={`${layoutIdPrefix}-container`}
-        className="saas-card p-6 flex flex-col h-full bg-white relative group"
+        className="saas-card p-6 flex flex-col h-full relative group"
         style={{ transform: "translateZ(30px)" }}
       >
         <div className="flex items-center gap-4 mb-4">
           {exp.logo && (
-            <motion.div 
+            <motion.div
               layoutId={`${layoutIdPrefix}-logo-container`}
-              className="shrink-0 w-12 h-12 sm:w-16 sm:h-16 rounded-xl overflow-hidden border border-slate-100 bg-slate-50 flex items-center justify-center"
+              className="shrink-0 w-12 h-12 sm:w-16 sm:h-16 rounded-xl overflow-hidden border border-line bg-surface-2 flex items-center justify-center"
             >
-              <motion.img 
+              <motion.img
                 layoutId={`${layoutIdPrefix}-logo`}
-                src={exp.logo} 
+                src={exp.logo}
                 alt={`${exp.company} logo`}
                 className="w-full h-full object-cover opacity-90 group-hover:scale-110 transition-transform duration-500"
               />
             </motion.div>
           )}
           <div>
-            <motion.span layoutId={`${layoutIdPrefix}-date`} className="text-[10px] sm:text-xs font-bold text-[#135CC5] block tracking-wide uppercase">
+            <motion.span layoutId={`${layoutIdPrefix}-date`} className="text-[10px] sm:text-xs font-bold text-accent block tracking-wide uppercase">
               {exp.date}
             </motion.span>
-            <motion.h4 layoutId={`${layoutIdPrefix}-company`} className="text-sm sm:text-md font-medium text-slate-600 line-clamp-1">
+            <motion.h4 layoutId={`${layoutIdPrefix}-company`} className="text-sm sm:text-md font-medium text-ink-muted line-clamp-1">
               {exp.company}
             </motion.h4>
           </div>
         </div>
 
-        <motion.h3 layoutId={`${layoutIdPrefix}-title`} className="text-lg sm:text-xl font-bold text-[#0F172A] mb-3 line-clamp-2 group-hover:text-[#135CC5] transition-colors">
+        <motion.h3 layoutId={`${layoutIdPrefix}-title`} className="text-lg sm:text-xl font-bold text-ink mb-3 line-clamp-2 group-hover:text-accent transition-colors">
           {exp.title}
         </motion.h3>
-        
-        <motion.p layoutId={`${layoutIdPrefix}-desc`} className="text-xs sm:text-sm text-slate-600 leading-relaxed mb-4 line-clamp-3 flex-1">
+
+        <motion.p layoutId={`${layoutIdPrefix}-desc`} className="text-xs sm:text-sm text-ink-muted leading-relaxed mb-4 line-clamp-3 flex-1">
           {exp.description}
         </motion.p>
-        
-        <motion.div layoutId={`${layoutIdPrefix}-skills`} className="flex flex-wrap gap-2 pt-4 border-t border-slate-100 mt-auto">
+
+        <motion.div layoutId={`${layoutIdPrefix}-skills`} className="flex flex-wrap gap-2 pt-4 border-t border-line mt-auto">
           {exp.skills.slice(0, 3).map((skill, skillIndex) => (
             <span key={skillIndex} className="badge-blue text-[10px]">
               {skill}
@@ -114,7 +122,7 @@ export function Home() {
       date: "Mar 2026 - Present",
       location: "Bandung, West Java, Indonesia",
       description: "Led a dedicated team to ensure seamless communication and an exceptional experience for attendees. Managed LO staff, developed planning schedules, and oversaw participant registration and guidance.",
-      logo: "/assets/logo-placeholder.png",
+      logo: "/assets/logo-placeholder.svg",
       skills: ["Leadership", "Communication", "Event Management"]
     },
     {
@@ -123,7 +131,7 @@ export function Home() {
       date: "Feb 2026 - Apr 2026",
       location: "Bandung, West Java, Indonesia",
       description: "Translated UI/UX designs into functional, highly responsive web interfaces. Managed codebase repository and enforced strict version control for the engineering team.",
-      logo: "/assets/logo-placeholder.png",
+      logo: "/assets/logo-placeholder.svg",
       skills: ["React", "TypeScript", "Version Control", "Tailwind", "Front-end structure"]
     },
     {
@@ -132,7 +140,7 @@ export function Home() {
       date: "Nov 2025 - Mar 2026",
       location: "Bandung, West Java, Indonesia",
       description: "Monitored and evaluated the performance of the Logistics division staff. Conducted performance assessments and determined the 'Best Staff of the Month'.",
-      logo: "/assets/logo-placeholder.png",
+      logo: "/assets/logo-placeholder.svg",
       skills: ["Human Resources", "Performance Evaluation", "Team Management"]
     },
     {
@@ -141,7 +149,7 @@ export function Home() {
       date: "Oct 2025 - Present",
       location: "Kecamatan Jatinangor, West Java",
       description: "Managed internal dynamics and fostered a cohesive community. Served as Lead Coordinator for the Cohort Forum to address student needs and resolve internal matters.",
-      logo: "/assets/logo-placeholder.png",
+      logo: "/assets/logo-placeholder.svg",
       skills: ["Public Relations", "Internal Relations", "Coordination"]
     },
     {
@@ -150,7 +158,7 @@ export function Home() {
       date: "Oct 2025",
       location: "Bandung, West Java, Indonesia",
       description: "Managed logistics and on-site operations for the STEI KAMP event.",
-      logo: "/assets/logo-placeholder.png",
+      logo: "/assets/logo-placeholder.svg",
       skills: ["Logistics", "Operations", "Problem Solving"]
     },
     {
@@ -159,7 +167,7 @@ export function Home() {
       date: "Aug 2025",
       location: "Kecamatan Jatinangor, West Java",
       description: "Handled documentation and publication materials for the gathering.",
-      logo: "/assets/logo-placeholder.png",
+      logo: "/assets/logo-placeholder.svg",
       skills: ["Photography", "Design", "Publication"]
     },
     {
@@ -168,7 +176,7 @@ export function Home() {
       date: "Feb 2024 - Feb 2025",
       location: "Kota Bekasi, West Java, Indonesia",
       description: "Managed public relations and information communication technology initiatives.",
-      logo: "/assets/logo-placeholder.png",
+      logo: "/assets/logo-placeholder.svg",
       skills: ["Public Relations", "Information Technology", "Communication"]
     },
     {
@@ -177,7 +185,7 @@ export function Home() {
       date: "Aug 2024 - Oct 2024",
       location: "SMAN 5 Bekasi",
       description: "Created and managed publication content and documentation for the Festifive event.",
-      logo: "/assets/logo-placeholder.png",
+      logo: "/assets/logo-placeholder.svg",
       skills: ["Content Creation", "Documentation", "Social Media"]
     },
     {
@@ -186,7 +194,7 @@ export function Home() {
       date: "Jan 2023 - Feb 2024",
       location: "Kota Bekasi, West Java, Indonesia",
       description: "Managed administrative duties and communications for the ICT extracurricular.",
-      logo: "/assets/logo-placeholder.png",
+      logo: "/assets/logo-placeholder.svg",
       skills: ["Administration", "Organization", "Information Technology"]
     }
   ];
@@ -348,81 +356,130 @@ export function Home() {
   return (
     <div className="flex flex-col items-center w-full gap-24 pb-20 relative">
       
-      {/* Home Section (Hero - Animasi Scroll In & Scroll Out) */}
-      <section id="home" className="w-full bg-transparent min-h-[85vh] flex items-center justify-center pt-24 pb-12 overflow-hidden relative">
-        <div className="w-full max-w-6xl mx-auto px-6 md:px-12 flex flex-col md:flex-row items-center justify-between relative z-10 gap-12 md:gap-8">
-          
-          {/* Bagian Foto Profil (Kiri) */}
+      {/* Home Section (Hero) — komposisi ala Figma: teks kiri, panel kaca kanan */}
+      <section id="home" className="w-full bg-transparent min-h-[88vh] flex items-center justify-center pt-24 pb-12 relative">
+        <div className="w-full max-w-6xl mx-auto px-6 md:px-12 grid md:grid-cols-2 items-center relative z-10 gap-10 md:gap-8">
+
+          {/* Bagian Teks (Kiri) */}
           <motion.div
             initial={{ opacity: 0, x: -50 }}
             whileInView={{ opacity: 1, x: 0 }}
             viewport={{ once: false, amount: 0.2 }}
             transition={{ duration: 0.8 }}
-            // PERBAIKAN: Menambahkan margin-top negatif (-mt-4 di mobile, -mt-16 di desktop) agar gambar ditarik naik
-            className="w-full md:w-1/2 flex justify-center md:justify-start -mt-4 md:-mt-16"
+            className="order-2 md:order-1 w-full flex flex-col items-center md:items-start text-center md:text-left"
           >
-            <div className="relative w-full max-w-xs sm:max-w-sm md:max-w-md lg:max-w-lg flex items-start justify-center overflow-hidden h-[450px] md:h-[550px] lg:h-[600px]">
-              <img 
-                src={fotoProfil} 
-                alt="Farhan Izdiyad Profile" 
-                className="w-full h-full object-cover object-top relative z-0 grayscale contrast-125 brightness-[0.8] opacity-90 transition-all duration-500 hover:grayscale-0 hover:contrast-100 hover:brightness-100 hover:opacity-100 cursor-pointer"
-              />
-              <div className="absolute bottom-0 left-0 right-0 h-32 bg-gradient-to-t from-[var(--color-bg-page)] to-transparent z-10 pointer-events-none"></div>
+            {/* Eyebrow badge — sentuhan tambahan */}
+            <div className="inline-flex items-center gap-2 mb-6 px-3 py-1.5 rounded-full border border-line bg-surface/60 backdrop-blur-sm">
+              <span className="relative flex h-2 w-2">
+                <span className="absolute inline-flex h-full w-full rounded-full bg-accent opacity-75 animate-ping" />
+                <span className="relative inline-flex h-2 w-2 rounded-full bg-accent" />
+              </span>
+              <span className="font-ui text-xs font-semibold tracking-wide text-ink-muted">
+                Open to collaboration · ITB STEI-K
+              </span>
             </div>
-          </motion.div>
 
-          {/* Bagian Teks (Kanan) */}
-          <motion.div 
-            initial={{ opacity: 0, x: 50 }}
-            whileInView={{ opacity: 1, x: 0 }}
-            viewport={{ once: false, amount: 0.2 }}
-            transition={{ duration: 0.8, delay: 0.2 }}
-            // PERBAIKAN: Menghapus pb-8 dan pb-16 agar teks tidak terdorong ke atas dan bisa sejajar tengah dengan foto
-            className="w-full md:w-1/2 flex flex-col items-center md:items-start text-center md:text-left"
-          >
-
-            
-            <h1 className="text-3xl sm:text-4xl md:text-4xl lg:text-5xl font-extrabold mb-2 tracking-wide uppercase leading-tight text-[#0F172A] md:whitespace-nowrap">
-              FARHAN IZDIYAD
+            <h1 className="font-display text-4xl sm:text-5xl md:text-5xl lg:text-6xl font-extrabold mb-3 tracking-tight uppercase leading-[1.05] text-ink">
+              FARHAN<br className="hidden sm:block" /> IZDIYAD
             </h1>
 
-            <h2 className="text-lg sm:text-xl md:text-lg lg:text-xl font-bold text-[#135cc5] mb-6 tracking-wide uppercase">
+            <h2 className="font-ui text-lg sm:text-xl md:text-lg lg:text-xl font-semibold text-accent mb-6 tracking-wide uppercase">
               System And Information Technology
             </h2>
 
-            <p className="text-slate-600 italic font-light leading-relaxed mb-10 max-w-md text-sm md:text-base min-h-[80px]">
+            <p className="text-ink-muted italic font-light leading-relaxed mb-10 max-w-md text-sm md:text-base min-h-[80px]">
               {typedText}
               <motion.span
                 animate={{ opacity: [1, 0, 1] }}
                 transition={{ repeat: Infinity, duration: 0.8, ease: "linear" }}
-                className="inline-block w-[2px] h-[1em] bg-slate-400 ml-1 align-middle"
+                className="inline-block w-[2px] h-[1em] bg-accent ml-1 align-middle"
               />
             </p>
 
-            <div className="w-12 h-[2px] bg-slate-300 mb-10"></div>
+            {/* CTA — tombol "Get started" ala Figma (panah), warna biru */}
+            <div className="flex flex-col sm:flex-row gap-3 mb-9 w-full sm:w-auto">
+              <button
+                onClick={() => scrollToId('contact')}
+                className="btn-primary group flex items-center justify-center gap-2"
+              >
+                Get in touch
+                <FiArrowRight className="transition-transform duration-300 group-hover:translate-x-1" />
+              </button>
+              <button
+                onClick={() => scrollToId('projects')}
+                className="group flex items-center justify-center gap-2 px-6 py-3 rounded-xl font-medium text-ink border border-line bg-surface/60 backdrop-blur-sm hover:border-accent/50 hover:text-accent transition-colors"
+              >
+                View projects
+                <FiArrowUpRight className="transition-transform duration-300 group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
+              </button>
+            </div>
 
-            <div className="flex gap-6 text-slate-400 text-lg">
-              <a href="https://www.linkedin.com/in/farhan-izdiyad-726a80337/" className="hover:text-[#135CC5] transition-colors"><FaLinkedin /></a>
+            <div className="flex gap-5 text-ink-subtle text-lg">
+              <a href="https://www.linkedin.com/in/farhan-izdiyad-726a80337/" className="hover:text-[#0A66C2] transition-colors"><FaLinkedin /></a>
               <a href="https://www.instagram.com/farhanizdiyad/" className="hover:text-[#E1306C] transition-colors"><FaInstagram /></a>
-              <a href="https://github.com/Bantepss" className="hover:text-[#000000] transition-colors"><FaGithub /></a>
+              <a href="https://github.com/Bantepss" className="hover:text-accent transition-colors"><FaGithub /></a>
             </div>
           </motion.div>
-          
+
+          {/* Bagian Foto Profil (Kanan) — panel glassmorphism rounded-[40px] ala Figma */}
+          <motion.div
+            initial={{ opacity: 0, x: 50 }}
+            whileInView={{ opacity: 1, x: 0 }}
+            viewport={{ once: false, amount: 0.2 }}
+            transition={{ duration: 0.8, delay: 0.15 }}
+            className="order-1 md:order-2 w-full flex justify-center md:justify-end"
+          >
+            <div className="glass-panel rounded-[40px] p-3 w-full max-w-xs sm:max-w-sm relative">
+              <div className="group relative overflow-hidden rounded-[28px] h-[440px] sm:h-[500px] md:h-[540px] bg-gradient-to-b from-surface-2 to-surface">
+                {/* Backdrop glow di belakang figure — mengisi area transparan cutout */}
+                <div className="absolute inset-0 flex items-start justify-center pt-8 pointer-events-none">
+                  <div
+                    className="w-[85%] h-[70%] rounded-full opacity-80"
+                    style={{ background: 'radial-gradient(circle at 50% 40%, var(--glow-1), transparent 68%)', filter: 'blur(28px)' }}
+                  />
+                </div>
+                <img
+                  src={fotoProfil}
+                  alt="Farhan Izdiyad Profile"
+                  className="absolute inset-0 z-[1] w-full h-full object-cover object-top grayscale contrast-110 brightness-95 opacity-95 transition-all duration-500 group-hover:grayscale-0 group-hover:contrast-100 group-hover:brightness-100 group-hover:opacity-100 cursor-pointer"
+                />
+                {/* Fade tipis di bawah agar kaki/torso menyatu mulus ke panel + chip */}
+                <div className="absolute inset-x-0 bottom-0 h-28 z-[2] bg-gradient-to-t from-surface to-transparent pointer-events-none" />
+                {/* Floating chip */}
+                <div className="absolute bottom-3 left-3 right-3 z-[3] glass-panel rounded-2xl px-4 py-3 flex items-center justify-between">
+                  <div className="text-left">
+                    <p className="font-ui text-xs font-semibold text-ink">Bandung, Indonesia</p>
+                    <p className="font-ui text-[10px] text-ink-subtle uppercase tracking-wider">Undergraduate · ITB</p>
+                  </div>
+                  <span className="badge-blue text-[10px]">STI</span>
+                </div>
+              </div>
+            </div>
+          </motion.div>
+
         </div>
+      </section>
+
+      {/* Tech marquee — efek "Infinite Scroll" Figma, isi: tools & teknologi */}
+      <section className="w-full -mt-8">
+        <p className="text-center font-ui text-xs font-semibold uppercase tracking-[0.3em] text-ink-subtle mb-4">
+          Tools &amp; technologies I work with
+        </p>
+        <LogoMarquee />
       </section>
 
       {/* Experience Auto-Scrolling Slider Section */}
       <section id="experience" className="w-full flex flex-col items-center overflow-hidden">
         <motion.div 
-          initial={{ opacity: 0, y: 30 }}
-          whileInView={{ opacity: 1, y: 0 }}
+          initial={{ opacity: 0, x: -70 }}
+          whileInView={{ opacity: 1, x: 0 }}
           viewport={{ once: false, margin: "-100px" }}
           transition={{ duration: 0.6 }}
           className="w-full pt-12"
         >
           <div className="text-center mb-12">
-            <h2 className="text-3xl md:text-4xl font-extrabold text-[#0F172A]">Experience</h2>
-            <p className="text-[#475569] mt-3">My professional journey. Hover to pause, click to expand.</p>
+            <h2 className="font-display text-3xl md:text-4xl font-extrabold text-ink">Experience</h2>
+            <p className="text-ink-muted mt-3">My professional journey. Hover to pause, click to expand.</p>
           </div>
           
           {/* Marquee Slider Container */}
@@ -467,20 +524,20 @@ export function Home() {
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
               onClick={() => setSelectedExp(null)}
-              className="fixed inset-0 bg-slate-900/40 backdrop-blur-sm z-[100]"
+              className="fixed inset-0 bg-slate-900/50 dark:bg-black/70 backdrop-blur-sm z-[100]"
             />
 
             <div className="fixed inset-0 flex items-center justify-center z-[101] pointer-events-none p-4 md:p-10">
               <motion.div
                 layoutId={`exp-${selectedKey}-container`}
-                className="w-full max-w-2xl max-h-[90vh] bg-white rounded-3xl overflow-y-auto pointer-events-auto flex flex-col shadow-2xl relative p-8 md:p-12"
+                className="w-full max-w-2xl max-h-[90vh] bg-surface border border-line rounded-3xl overflow-y-auto pointer-events-auto flex flex-col shadow-2xl relative p-8 md:p-12"
               >
                 <motion.button
                   initial={{ opacity: 0 }}
                   animate={{ opacity: 1 }}
                   exit={{ opacity: 0 }}
                   onClick={() => setSelectedExp(null)}
-                  className="absolute top-4 right-4 z-10 w-10 h-10 bg-slate-100 rounded-full flex items-center justify-center text-slate-700 hover:text-red-500 hover:bg-slate-200 transition-colors shadow-sm"
+                  className="absolute top-4 right-4 z-10 w-10 h-10 bg-surface-2 rounded-full flex items-center justify-center text-ink-muted hover:text-red-500 transition-colors shadow-sm"
                 >
                   <FaTimes />
                 </motion.button>
@@ -489,7 +546,7 @@ export function Home() {
                   {selectedExp.logo && (
                     <motion.div
                       layoutId={`exp-${selectedKey}-logo-container`}
-                      className="shrink-0 w-20 h-20 sm:w-24 sm:h-24 rounded-2xl overflow-hidden border border-slate-100 bg-slate-50 flex items-center justify-center"
+                      className="shrink-0 w-20 h-20 sm:w-24 sm:h-24 rounded-2xl overflow-hidden border border-line bg-surface-2 flex items-center justify-center"
                     >
                       <motion.img
                         layoutId={`exp-${selectedKey}-logo`}
@@ -502,13 +559,13 @@ export function Home() {
                   <div>
                     <motion.span
                       layoutId={`exp-${selectedKey}-date`}
-                      className="text-xs font-bold text-[#135CC5] block tracking-wide uppercase mb-1"
+                      className="text-xs font-bold text-accent block tracking-wide uppercase mb-1"
                     >
                       {selectedExp.date} &nbsp;&bull;&nbsp; {selectedExp.location}
                     </motion.span>
                     <motion.h4
                       layoutId={`exp-${selectedKey}-company`}
-                      className="text-lg font-medium text-slate-600"
+                      className="text-lg font-medium text-ink-muted"
                     >
                       {selectedExp.company}
                     </motion.h4>
@@ -517,7 +574,7 @@ export function Home() {
 
                 <motion.h3
                   layoutId={`exp-${selectedKey}-title`}
-                  className="text-3xl md:text-4xl font-extrabold text-[#0F172A] mb-6"
+                  className="font-display text-3xl md:text-4xl font-extrabold text-ink mb-6"
                 >
                   {selectedExp.title}
                 </motion.h3>
@@ -535,7 +592,7 @@ export function Home() {
 
                 <motion.p
                   layoutId={`exp-${selectedKey}-desc`}
-                  className="text-slate-600 text-base md:text-lg leading-relaxed whitespace-pre-wrap"
+                  className="text-ink-muted text-base md:text-lg leading-relaxed whitespace-pre-wrap"
                 >
                   {selectedExp.description}
                 </motion.p>

@@ -5,6 +5,17 @@
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>FarhanIzdiyad.porto</title>
+    <script>
+      // Terapkan tema sebelum paint pertama agar tidak ada kedip (FOUC).
+      // Default = light (putih-biru). Dark hanya jika user pernah memilihnya.
+      (function () {
+        try {
+          if (localStorage.getItem('theme') === 'dark') {
+            document.documentElement.classList.add('dark');
+          }
+        } catch (e) {}
+      })();
+    </script>
   </head>
   <body>
     <div id="root"></div>

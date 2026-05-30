@@ -1,46 +1,160 @@
-@import url('https://fonts.googleapis.com/css2?family=Oi&display=swap');
-@import url('https://fonts.googleapis.com/css2?family=Quicksand:wght@300..700&display=swap');
+/* --- Fonts: Figma (Poppins / Sora / Inter) + Loading screen (Playfair / Quicksand) --- */
+@import url('https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;1,300;1,400&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Sora:wght@100;200;300;400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
 @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400..900;1,400..900&family=Quicksand:wght@300..700&display=swap');
 
-/* Sisa kode Tailwind kamu biasanya ada di bawah sini */
 @import "tailwindcss";
 
+/* Dark mode dipicu lewat class `.dark` di <html> (bukan media query),
+   supaya bisa di-toggle manual & dipersist ke localStorage. */
+@custom-variant dark (&:where(.dark, .dark *));
+
 @theme {
+  /* Font families (ikut Figma) */
+  --font-sans: 'Poppins', ui-sans-serif, system-ui, sans-serif;
+  --font-display: 'Poppins', sans-serif;
+  --font-brand: 'Sora', sans-serif;
+  --font-ui: 'Inter', sans-serif;
+
+  /* Brand statis (dipakai tombol primer) */
   --color-brand-primary: #135CC5;
   --color-brand-hover: #0C3BAA;
   --color-brand-light: #EFF6FF;
-  --color-text-main: #0F172A;
-  --color-text-muted: #475569;
-  --color-bg-page: #F8FAFC;
-  --color-bg-card: #FFFFFF;
-  --color-border-subtle: #E2E8F0;
+
+  /* Token semantik — nilainya mengikuti variabel di :root / .dark di bawah,
+     sehingga utility seperti `bg-surface` / `text-ink` otomatis berganti
+     saat dark mode aktif. */
+  --color-page: var(--page);
+  --color-surface: var(--surface);
+  --color-surface-2: var(--surface-2);
+  --color-ink: var(--ink);
+  --color-ink-muted: var(--ink-muted);
+  --color-ink-subtle: var(--ink-subtle);
+  --color-line: var(--line);
+  --color-accent: var(--accent);
+  --color-accent-strong: var(--accent-strong);
+  --color-accent-soft: var(--accent-soft);
+
+  /* Kompatibilitas dengan token lama yang masih dirujuk sebagian komponen */
+  --color-text-main: var(--ink);
+  --color-text-muted: var(--ink-muted);
+  --color-bg-page: var(--page);
+  --color-bg-card: var(--surface);
+  --color-border-subtle: var(--line);
+}
+
+/* ---------- Palet LIGHT (default): putih + biru ---------- */
+:root {
+  color-scheme: light;
+
+  --page: #F8FAFC;
+  --surface: #FFFFFF;
+  --surface-2: #F1F5F9;
+  --ink: #0F172A;
+  --ink-muted: #475569;
+  --ink-subtle: #94A3B8;
+  --line: #E2E8F0;
+
+  --accent: #135CC5;
+  --accent-strong: #0C3BAA;
+  --accent-soft: #EFF6FF;
+
+  /* Glow ambient (efek noisy-gradient dari Figma, dibuat ulang dengan biru).
+     Light mode dinaikkan intensitasnya agar kedip biru tetap terlihat di atas latar putih. */
+  --glow-1: rgba(37, 99, 235, 0.50);
+  --glow-2: rgba(59, 130, 246, 0.40);
+  --glow-3: rgba(96, 122, 255, 0.34);
+
+  /* Glass panel */
+  --glass-bg: rgba(255, 255, 255, 0.55);
+  --glass-border: rgba(255, 255, 255, 0.7);
+}
+
+/* ---------- Palet DARK: hitam + biru ---------- */
+.dark {
+  color-scheme: dark;
+
+  --page: #060910;
+  --surface: #0E1524;
+  --surface-2: #131C30;
+  --ink: #E8EEF7;
+  --ink-muted: #9FB0C9;
+  --ink-subtle: #6B7C97;
+  --line: rgba(148, 163, 184, 0.16);
+
+  --accent: #4F8DF0;
+  --accent-strong: #3B82F6;
+  --accent-soft: rgba(79, 141, 240, 0.14);
+
+  --glow-1: rgba(37, 99, 235, 0.40);
+  --glow-2: rgba(29, 78, 216, 0.30);
+  --glow-3: rgba(13, 40, 90, 0.55);
+
+  --glass-bg: rgba(20, 30, 50, 0.45);
+  --glass-border: rgba(148, 163, 184, 0.22);
 }
 
 @layer base {
+  html {
+    scroll-behavior: smooth;
+  }
+
   body {
-    @apply bg-[var(--color-bg-page)] text-[var(--color-text-main)] font-sans antialiased overflow-x-hidden;
+    @apply bg-[var(--page)] text-[var(--ink)] font-sans antialiased overflow-x-hidden;
+    transition: background-color 0.4s ease, color 0.4s ease;
   }
 
   ::selection {
-    @apply bg-[var(--color-brand-primary)] text-white;
+    @apply bg-[var(--accent)] text-white;
   }
 }
 
 @layer utilities {
-  .glass-panel {
-    @apply bg-[var(--color-bg-card)] border border-[var(--color-border-subtle)] shadow-sm;
+  .font-brand {
+    font-family: var(--font-brand);
   }
-  
+  .font-ui {
+    font-family: var(--font-ui);
+  }
+
+  .glass-panel {
+    background-color: var(--glass-bg);
+    border: 1px solid var(--glass-border);
+    -webkit-backdrop-filter: blur(14px);
+    backdrop-filter: blur(14px);
+    @apply shadow-sm;
+  }
+
   .saas-card {
-    @apply bg-white rounded-2xl border border-slate-200 shadow-sm transition-shadow duration-300 hover:shadow-md;
+    background-color: var(--surface);
+    border: 1px solid var(--line);
+    @apply rounded-2xl shadow-sm transition-[box-shadow,transform,background-color,border-color] duration-300 hover:shadow-lg;
+  }
+  .dark .saas-card {
+    @apply shadow-none hover:shadow-[0_8px_40px_-12px_rgba(37,99,235,0.35)];
   }
 
   .btn-primary {
-    @apply bg-[var(--color-brand-primary)] text-white px-6 py-3 rounded-xl font-medium transition-colors hover:bg-[var(--color-brand-hover)] shadow-sm;
+    background-color: var(--accent);
+    @apply text-white px-6 py-3 rounded-xl font-medium transition-colors shadow-sm;
+  }
+  .btn-primary:hover {
+    background-color: var(--accent-strong);
   }
 
   .badge-blue {
-    @apply bg-blue-50 text-[var(--color-brand-primary)] border border-blue-100 px-3 py-1 rounded-full text-xs font-semibold uppercase tracking-wider;
+    background-color: var(--accent-soft);
+    color: var(--accent);
+    border: 1px solid color-mix(in srgb, var(--accent) 25%, transparent);
+    @apply px-3 py-1 rounded-full text-xs font-semibold uppercase tracking-wider;
+  }
+
+  /* Glow ambient — dipakai BackgroundFX (efek noisy-gradient + layer blur Figma) */
+  .fx-glow {
+    @apply pointer-events-none absolute rounded-full;
+    filter: blur(90px);
+    will-change: transform, opacity;
   }
 
   .no-scrollbar {
@@ -52,20 +166,30 @@
   }
 }
 
-/* Custom scrollbar for webkit */
+/* Marquee infinite scroll (efek "Infinite Scroll" Figma) */
+@keyframes marquee-scroll {
+  from { transform: translateX(0); }
+  to   { transform: translateX(-50%); }
+}
+.animate-marquee {
+  animation: marquee-scroll var(--marquee-duration, 35s) linear infinite;
+}
+.marquee-group:hover .animate-marquee {
+  animation-play-state: paused;
+}
+
+/* Custom scrollbar — ikut tema */
 ::-webkit-scrollbar {
-  width: 8px;
+  width: 9px;
+  height: 9px;
 }
-
 ::-webkit-scrollbar-track {
-  background: #F8FAFC;
+  background: var(--page);
 }
-
 ::-webkit-scrollbar-thumb {
-  background: #CBD5E1;
-  border-radius: 4px;
+  background: color-mix(in srgb, var(--ink-subtle) 55%, transparent);
+  border-radius: 6px;
 }
-
 ::-webkit-scrollbar-thumb:hover {
-  background: #94A3B8;
+  background: var(--accent);
 }
