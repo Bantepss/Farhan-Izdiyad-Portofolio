@@ -1,4 +1,4 @@
-import { motion, AnimatePresence, useMotionValue, useSpring, useTransform, useAnimationFrame } from 'framer-motion';
+import { motion, AnimatePresence, useMotionValue, useSpring, useTransform } from 'framer-motion';
 import { useState, useRef, useEffect } from 'react';
 import { FaTimes, FaLinkedin, FaInstagram, FaGithub } from 'react-icons/fa';
 import { FiArrowRight, FiArrowUpRight } from 'react-icons/fi';
@@ -7,6 +7,7 @@ import { About } from './About';
 import { Projects } from './Projects';
 import { Contact } from './Contact';
 import { Education } from './Education';
+import { SectionReveal } from '../components/SectionReveal';
 import { LogoMarquee } from '../components/LogoMarquee';
 
 const scrollToId = (id: string) => {
@@ -26,25 +27,31 @@ interface Experience {
   skills: string[];
 }
 
-// --- Komponen Kartu Experience 3D ---
-function ExperienceCard({ exp, onClick, layoutIdPrefix }: { exp: Experience, onClick: () => void, layoutIdPrefix: string }) {
+// --- Komponen Kartu Experience Timeline 3D (matching Education style) ---
+function ExperienceTimelineCard({
+  exp,
+  index,
+  isLeft,
+  onClick,
+}: {
+  exp: Experience;
+  index: number;
+  isLeft: boolean;
+  onClick: () => void;
+}) {
   const ref = useRef<HTMLDivElement>(null);
   const x = useMotionValue(0);
   const y = useMotionValue(0);
   const mouseXSpring = useSpring(x, { stiffness: 300, damping: 30 });
   const mouseYSpring = useSpring(y, { stiffness: 300, damping: 30 });
-  const rotateX = useTransform(mouseYSpring, [-0.5, 0.5], ["10deg", "-10deg"]);
-  const rotateY = useTransform(mouseXSpring, [-0.5, 0.5], ["-10deg", "10deg"]);
+  const rotateX = useTransform(mouseYSpring, [-0.5, 0.5], ["8deg", "-8deg"]);
+  const rotateY = useTransform(mouseXSpring, [-0.5, 0.5], ["-8deg", "8deg"]);
 
   const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
     if (!ref.current) return;
     const rect = ref.current.getBoundingClientRect();
-    const width = rect.width;
-    const height = rect.height;
-    const mouseX = e.clientX - rect.left;
-    const mouseY = e.clientY - rect.top;
-    x.set(mouseX / width - 0.5);
-    y.set(mouseY / height - 0.5);
+    x.set((e.clientX - rect.left) / rect.width - 0.5);
+    y.set((e.clientY - rect.top) / rect.height - 0.5);
   };
 
   const handleMouseLeave = () => {
@@ -59,59 +66,134 @@ function ExperienceCard({ exp, onClick, layoutIdPrefix }: { exp: Experience, onC
       onMouseLeave={handleMouseLeave}
       onClick={onClick}
       style={{ rotateX, rotateY, transformStyle: "preserve-3d" }}
-      className="cursor-pointer perspective-[1000px] shrink-0 w-[300px] sm:w-[350px] md:w-[400px] h-full"
+      initial={{
+        opacity: 0,
+        x: isLeft ? -80 : 80,
+        y: 30,
+      }}
+      whileInView={{
+        opacity: 1,
+        x: 0,
+        y: 0,
+      }}
+      viewport={{ once: false, margin: "-50px" }}
+      transition={{
+        duration: 0.7,
+        delay: index * 0.15,
+        ease: [0.25, 0.46, 0.45, 0.94],
+      }}
+      className="perspective-[1200px] w-full cursor-pointer"
     >
-      <motion.div
-        layoutId={`${layoutIdPrefix}-container`}
-        className="saas-card p-6 flex flex-col h-full relative group"
-        style={{ transform: "translateZ(30px)" }}
-      >
-        <div className="flex items-center gap-4 mb-4">
-          {exp.logo && (
-            <motion.div
-              layoutId={`${layoutIdPrefix}-logo-container`}
-              className="shrink-0 w-12 h-12 sm:w-16 sm:h-16 rounded-xl overflow-hidden border border-line bg-surface-2 flex items-center justify-center"
-            >
-              <motion.img
-                layoutId={`${layoutIdPrefix}-logo`}
-                src={exp.logo}
-                alt={`${exp.company} logo`}
-                className="w-full h-full object-cover opacity-90 group-hover:scale-110 transition-transform duration-500"
-              />
-            </motion.div>
-          )}
-          <div>
-            <motion.span layoutId={`${layoutIdPrefix}-date`} className="text-[10px] sm:text-xs font-bold text-accent block tracking-wide uppercase">
-              {exp.date}
-            </motion.span>
-            <motion.h4 layoutId={`${layoutIdPrefix}-company`} className="text-sm sm:text-md font-medium text-ink-muted line-clamp-1">
-              {exp.company}
-            </motion.h4>
+      {/* Comet border wrapper */}
+      <div className="comet-border">
+        <motion.div
+          style={{ transform: "translateZ(20px)" }}
+          className="glass-panel rounded-2xl p-6 md:p-8 relative overflow-hidden group
+                     hover:shadow-[0_0_30px_rgba(79,141,240,0.3)] transition-shadow duration-500"
+        >
+          {/* Decorative meteor trail accent inside card */}
+          <div className="absolute top-0 right-0 w-24 h-24 pointer-events-none opacity-30 group-hover:opacity-60 transition-opacity duration-500">
+            <div
+              className="absolute top-3 right-3 w-1 h-16 rounded-full"
+              style={{
+                background: 'linear-gradient(180deg, var(--accent), transparent)',
+                transform: 'rotate(-35deg)',
+                transformOrigin: 'top center',
+              }}
+            />
+            <div
+              className="absolute top-2 right-6 w-0.5 h-10 rounded-full"
+              style={{
+                background: 'linear-gradient(180deg, var(--accent-strong), transparent)',
+                transform: 'rotate(-25deg)',
+                transformOrigin: 'top center',
+              }}
+            />
+            {/* Meteor head glow */}
+            <div
+              className="absolute top-2 right-3 w-2 h-2 rounded-full"
+              style={{
+                background: 'var(--accent)',
+                boxShadow: '0 0 8px 3px var(--accent), 0 0 20px 6px rgba(79,141,240,0.3)',
+              }}
+            />
           </div>
-        </div>
 
-        <motion.h3 layoutId={`${layoutIdPrefix}-title`} className="text-lg sm:text-xl font-bold text-ink mb-3 line-clamp-2 group-hover:text-accent transition-colors">
-          {exp.title}
-        </motion.h3>
+          {/* Card content */}
+          <div className="flex flex-col sm:flex-row items-start gap-4 relative z-10">
+            {/* Logo with orbit ring */}
+            {exp.logo && (
+              <div className="relative shrink-0">
+                <div
+                  className="absolute -inset-2 rounded-full border border-dashed animate-orbit"
+                  style={{ borderColor: 'color-mix(in srgb, var(--accent) 30%, transparent)' }}
+                />
+                <div className="w-14 h-14 sm:w-16 sm:h-16 rounded-xl overflow-hidden border border-line bg-surface-2 flex items-center justify-center shadow-md relative">
+                  <img
+                    src={exp.logo}
+                    alt={`${exp.company} logo`}
+                    className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
+                  />
+                  <div
+                    className="absolute inset-0 opacity-0 group-hover:opacity-40 transition-opacity duration-500 pointer-events-none"
+                    style={{
+                      background: 'radial-gradient(circle, var(--accent) 0%, transparent 70%)',
+                    }}
+                  />
+                </div>
+              </div>
+            )}
 
-        <motion.p layoutId={`${layoutIdPrefix}-desc`} className="text-xs sm:text-sm text-ink-muted leading-relaxed mb-4 line-clamp-3 flex-1">
-          {exp.description}
-        </motion.p>
+            {/* Text content */}
+            <div className="flex-1 min-w-0">
+              <div className="flex items-center gap-2 mb-1">
+                <span className="text-[10px] sm:text-xs font-bold text-accent tracking-wide uppercase">
+                  {exp.date}
+                </span>
+              </div>
+              <h4 className="text-sm font-medium text-ink-muted mb-1 line-clamp-1">
+                {exp.company}
+              </h4>
+              <h3 className="text-lg sm:text-xl font-bold text-ink mb-2 line-clamp-2 group-hover:text-accent transition-colors duration-300">
+                {exp.title}
+              </h3>
+              <p className="text-xs sm:text-sm text-ink-muted leading-relaxed mb-4 line-clamp-3">
+                {exp.description}
+              </p>
 
-        <motion.div layoutId={`${layoutIdPrefix}-skills`} className="flex flex-wrap gap-2 pt-4 border-t border-line mt-auto">
-          {exp.skills.slice(0, 3).map((skill, skillIndex) => (
-            <span key={skillIndex} className="badge-blue text-[10px]">
-              {skill}
-            </span>
-          ))}
-          {exp.skills.length > 3 && (
-            <span className="badge-blue text-[10px] opacity-70">+{exp.skills.length - 3}</span>
-          )}
+              <div className="flex flex-wrap gap-2 pt-3 border-t border-line/50">
+                {exp.skills.slice(0, 3).map((skill, skillIndex) => (
+                  <span
+                    key={skillIndex}
+                    className="badge-blue text-[10px] hover:shadow-[0_0_12px_rgba(79,141,240,0.35)] transition-shadow"
+                  >
+                    {skill}
+                  </span>
+                ))}
+                {exp.skills.length > 3 && (
+                  <span className="badge-blue text-[10px] opacity-70">+{exp.skills.length - 3}</span>
+                )}
+              </div>
+            </div>
+          </div>
+
+          {/* Bottom shimmer line */}
+          <motion.div
+            className="absolute bottom-0 left-0 right-0 h-[1px]"
+            style={{
+              background: 'linear-gradient(90deg, transparent, var(--accent), transparent)',
+            }}
+            initial={{ scaleX: 0, opacity: 0 }}
+            whileInView={{ scaleX: 1, opacity: 0.5 }}
+            viewport={{ once: false }}
+            transition={{ duration: 1.2, delay: index * 0.2 + 0.5 }}
+          />
         </motion.div>
-      </motion.div>
+      </div>
     </motion.div>
   );
 }
+
 
 // --- Komponen Home Utama ---
 export function Home() {
@@ -200,133 +282,6 @@ export function Home() {
   ];
 
   const [selectedExp, setSelectedExp] = useState<Experience | null>(null);
-  // selectedKey = DOM-index card yang diklik. Karena marquee menduplikasi cards 3x,
-  // tiap copy butuh layoutId unik (`exp-${index}`). Modal pakai layoutId yang sama
-  // dengan card yang diklik, supaya morph berangkat dari posisi yang benar.
-  const [selectedKey, setSelectedKey] = useState<number>(0);
-  const [isHovered, setIsHovered] = useState(false);
-  // wasDraggingRef ditandai TRUE saat user benar-benar drag (>5px), dipakai onClick
-  // card untuk membedakan tap-asli dari akhir-drag.
-  const wasDraggingRef = useRef(false);
-
-  // --- Marquee Slider: native scrollLeft + auto-drift via RAF ---
-  // Pendekatan native: container pakai overflow-x-auto, scrollLeft di-poke RAF tiap
-  // frame. Touch swipe, trackpad horizontal scroll, dan scrollbar drag SEMUA otomatis
-  // bekerja karena browser yang handle. Mouse drag ditambahkan via pointer events.
-  const scrollerRef = useRef<HTMLDivElement>(null);
-  const [setWidth, setSetWidth] = useState(0); // lebar 1 set experiences
-  // Pause RAF: bila false → drift berjalan, true → drift berhenti.
-  // Tidak pakai spring smooth-speed lagi karena scrollLeft tidak terlihat "kaku"
-  // saat di-start/stop — beda dengan transform yang transisinya tajam.
-  const isPausedRef = useRef(false);
-  // Jeda re-resume setelah user terakhir interact: 800ms.
-  const interactionCooldownRef = useRef(0);
-
-  useEffect(() => {
-    isPausedRef.current = isHovered || !!selectedExp;
-  }, [isHovered, selectedExp]);
-
-  // Ukur lebar 1 set. Track diisi 3x experiences → setWidth = scrollWidth/3.
-  useEffect(() => {
-    if (!scrollerRef.current) return;
-    const measure = () => {
-      if (scrollerRef.current) {
-        const w = scrollerRef.current.scrollWidth / 3;
-        setSetWidth(w);
-        // Mulai dari awal set tengah, supaya drag kiri & kanan punya runway.
-        if (scrollerRef.current.scrollLeft === 0) {
-          scrollerRef.current.scrollLeft = w;
-        }
-      }
-    };
-    measure();
-    const ro = new ResizeObserver(measure);
-    ro.observe(scrollerRef.current);
-    return () => ro.disconnect();
-  }, []);
-
-  // Wrap: jaga scrollLeft tetap di range [setWidth, 2*setWidth] (set tengah).
-  // Karena 3 set duplikat identik, lompat ±setWidth tidak terlihat.
-  const wrapScroll = (c: HTMLDivElement) => {
-    if (setWidth === 0) return;
-    if (c.scrollLeft >= setWidth * 2) c.scrollLeft -= setWidth;
-    else if (c.scrollLeft < setWidth) c.scrollLeft += setWidth;
-  };
-
-  // Bedakan scrollLeft yang diset oleh RAF vs oleh user. Flag ini diset TRUE tepat
-  // sebelum RAF poke scrollLeft, lalu dibaca di scroll handler agar tidak men-trigger
-  // cooldown pause yang false-positive.
-  const programmaticScrollRef = useRef(false);
-
-  useAnimationFrame((_t, delta) => {
-    const c = scrollerRef.current;
-    if (!c || setWidth === 0) return;
-    if (isPausedRef.current) return;
-    // Cooldown setelah user interaksi: tunggu 800ms baru lanjut drift.
-    if (interactionCooldownRef.current > 0) {
-      interactionCooldownRef.current = Math.max(0, interactionCooldownRef.current - delta);
-      return;
-    }
-    const SPEED = 75; // px/detik
-    const px = (SPEED * delta) / 1000;
-    programmaticScrollRef.current = true;
-    c.scrollLeft += px;
-    wrapScroll(c);
-  });
-
-  // Listener scroll: handle wrap saat user yang melakukan scroll (touch/trackpad/drag).
-  useEffect(() => {
-    const c = scrollerRef.current;
-    if (!c) return;
-    const onScroll = () => {
-      if (programmaticScrollRef.current) {
-        programmaticScrollRef.current = false;
-        return;
-      }
-      // User-initiated scroll → tunda drift berikutnya.
-      interactionCooldownRef.current = 800;
-      wrapScroll(c);
-    };
-    c.addEventListener('scroll', onScroll, { passive: true });
-    return () => c.removeEventListener('scroll', onScroll);
-  }, [setWidth]);
-
-  // Mouse drag: native overflow-x-auto tidak melayani drag-mouse di area card
-  // (browser tidak punya UX itu by default). Kita tambah pointer events untuk mouse.
-  // Touch & pen biarkan native handle (overflow-x-auto sudah jalan).
-  //
-  // PENTING: kita TIDAK pakai setPointerCapture — itu akan men-redirect event ke
-  // scroller dan membuat click di card tidak fire. Window listener saja sudah
-  // cukup untuk track gerakan ke manapun cursor pergi.
-  const handlePointerDown = (e: React.PointerEvent<HTMLDivElement>) => {
-    if (e.pointerType !== 'mouse') return;
-    const c = scrollerRef.current;
-    if (!c) return;
-    const startX = e.clientX;
-    const startScroll = c.scrollLeft;
-    wasDraggingRef.current = false;
-
-    const onMove = (ev: PointerEvent) => {
-      const dx = ev.clientX - startX;
-      if (Math.abs(dx) <= 5) return; // tap kecil → biarkan, jangan trigger drag
-      wasDraggingRef.current = true;
-      programmaticScrollRef.current = true;
-      c.scrollLeft = startScroll - dx;
-      interactionCooldownRef.current = 800;
-    };
-    const onUp = () => {
-      window.removeEventListener('pointermove', onMove);
-      window.removeEventListener('pointerup', onUp);
-      window.removeEventListener('pointercancel', onUp);
-      // Reset flag setelah click yang mungkin nyusul (untuk membedakan tap dari drag).
-      setTimeout(() => {
-        wasDraggingRef.current = false;
-      }, 120);
-    };
-    window.addEventListener('pointermove', onMove);
-    window.addEventListener('pointerup', onUp);
-    window.addEventListener('pointercancel', onUp);
-  };
 
   // Efek Ketikan
   const [typedText, setTypedText] = useState("");
@@ -354,10 +309,10 @@ export function Home() {
 
 
   return (
-    <div className="flex flex-col items-center w-full gap-24 pb-20 relative">
-      
-      {/* Home Section (Hero) — komposisi ala Figma: teks kiri, panel kaca kanan */}
-      <section id="home" className="w-full bg-transparent min-h-[88vh] flex items-center justify-center pt-24 pb-12 relative">
+    <div className="flex flex-col items-center w-full gap-0 pb-20 relative">
+
+      {/* ===== SECTION 01 — HOME (hero + tools + experience) ===== */}
+      <section id="home" className="w-full bg-transparent min-h-screen flex flex-col justify-center pt-28 pb-12 relative">
         <div className="w-full max-w-6xl mx-auto px-6 md:px-12 grid md:grid-cols-2 items-center relative z-10 gap-10 md:gap-8">
 
           {/* Bagian Teks (Kiri) */}
@@ -379,12 +334,12 @@ export function Home() {
               </span>
             </div>
 
-            <h1 className="font-display text-4xl sm:text-5xl md:text-5xl lg:text-6xl font-extrabold mb-3 tracking-tight uppercase leading-[1.05] text-ink">
+            <h1 className="font-display text-5xl sm:text-6xl md:text-6xl lg:text-7xl font-black mb-4 tracking-[-0.04em] uppercase leading-[0.92] text-gradient-accent">
               FARHAN<br className="hidden sm:block" /> IZDIYAD
             </h1>
 
-            <h2 className="font-ui text-lg sm:text-xl md:text-lg lg:text-xl font-semibold text-accent mb-6 tracking-wide uppercase">
-              System And Information Technology
+            <h2 className="font-ui text-sm sm:text-base font-semibold text-accent mb-6 tracking-[0.22em] uppercase">
+              System &amp; Information Technology
             </h2>
 
             <p className="text-ink-muted italic font-light leading-relaxed mb-10 max-w-md text-sm md:text-base min-h-[80px]">
@@ -468,51 +423,175 @@ export function Home() {
         <LogoMarquee />
       </section>
 
-      {/* Experience Auto-Scrolling Slider Section */}
-      <section id="experience" className="w-full flex flex-col items-center overflow-hidden">
-        <motion.div 
-          initial={{ opacity: 0, x: -70 }}
-          whileInView={{ opacity: 1, x: 0 }}
-          viewport={{ once: false, margin: "-100px" }}
-          transition={{ duration: 0.6 }}
-          className="w-full pt-12"
-        >
-          <div className="text-center mb-12">
-            <h2 className="font-display text-3xl md:text-4xl font-extrabold text-ink">Experience</h2>
-            <p className="text-ink-muted mt-3">My professional journey. Hover to pause, click to expand.</p>
-          </div>
-          
-          {/* Marquee Slider Container */}
-          <div
-            className="w-full relative overflow-hidden"
-            onMouseEnter={() => setIsHovered(true)}
-            onMouseLeave={() => setIsHovered(false)}
-          >
-            {/* Fade Edges */}
-            <div className="absolute top-0 bottom-0 left-0 w-12 md:w-32 bg-gradient-to-r from-[var(--color-bg-page)] to-transparent z-10 pointer-events-none" />
-            <div className="absolute top-0 bottom-0 right-0 w-12 md:w-32 bg-gradient-to-l from-[var(--color-bg-page)] to-transparent z-10 pointer-events-none" />
+      {/* Experience Timeline Section (Comet Trail style, matching Education) */}
+      <section id="experience" className="w-full relative overflow-hidden">
 
+        {/* Section Header */}
+        <motion.div
+          initial={{ opacity: 0, y: 40 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: false, margin: "-80px" }}
+          transition={{ duration: 0.7 }}
+          className="text-center mb-16 md:mb-20 relative z-10 pt-12"
+        >
+          <motion.h2
+            className="font-display text-4xl md:text-5xl font-extrabold text-ink mb-4"
+            initial={{ opacity: 0, scale: 0.9 }}
+            whileInView={{ opacity: 1, scale: 1 }}
+            viewport={{ once: false }}
+            transition={{ duration: 0.6, delay: 0.1 }}
+          >
+            Experience
+          </motion.h2>
+
+          {/* Glowing accent underline bar */}
+          <motion.div
+            className="mx-auto h-1 rounded-full relative"
+            style={{ width: '80px' }}
+            initial={{ scaleX: 0 }}
+            whileInView={{ scaleX: 1 }}
+            viewport={{ once: false }}
+            transition={{ duration: 0.8, delay: 0.3 }}
+          >
             <div
-              ref={scrollerRef}
-              onPointerDown={handlePointerDown}
-              className="flex gap-6 py-10 items-stretch overflow-x-auto no-scrollbar cursor-grab active:cursor-grabbing select-none"
-            >
-              {[...experiences, ...experiences, ...experiences].map((exp, index) => (
-                <div key={index} className="h-full py-4 shrink-0">
-                  <ExperienceCard
-                    exp={exp}
-                    onClick={() => {
-                      if (wasDraggingRef.current) return;
-                      setSelectedExp(exp);
-                      setSelectedKey(index);
-                    }}
-                    layoutIdPrefix={`exp-${index}`}
-                  />
-                </div>
-              ))}
-            </div>
-          </div>
+              className="w-full h-full rounded-full"
+              style={{
+                background: 'linear-gradient(90deg, var(--accent), var(--accent-strong), var(--accent))',
+                boxShadow: '0 0 12px 3px var(--accent), 0 0 30px 6px color-mix(in srgb, var(--accent) 40%, transparent)',
+              }}
+            />
+          </motion.div>
+
+          <motion.p
+            className="text-ink-muted mt-5 text-base md:text-lg max-w-md mx-auto"
+            initial={{ opacity: 0, y: 15 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: false }}
+            transition={{ duration: 0.6, delay: 0.4 }}
+          >
+            My professional journey through the cosmos. Click to expand.
+          </motion.p>
         </motion.div>
+
+        {/* Timeline */}
+        <div className="relative z-10 max-w-5xl mx-auto px-4">
+          {/* Central vertical comet trail line */}
+          <div
+            className="comet-trail absolute left-6 md:left-1/2 md:-translate-x-1/2 top-0 bottom-0 w-[3px] rounded-full z-0"
+          />
+
+          {/* Timeline entries */}
+          <div className="flex flex-col gap-12 md:gap-16 relative">
+            {experiences.map((exp, index) => {
+              const isLeft = index % 2 === 0;
+
+              return (
+                <div
+                  key={index}
+                  className="relative flex flex-col md:flex-row items-start md:items-center"
+                >
+                  {/* Glow Node on the timeline */}
+                  <motion.div
+                    className="absolute left-6 md:left-1/2 -translate-x-1/2 z-20"
+                    initial={{ scale: 0, opacity: 0 }}
+                    whileInView={{ scale: 1, opacity: 1 }}
+                    viewport={{ once: false }}
+                    transition={{ duration: 0.5, delay: index * 0.1 + 0.3, type: "spring", stiffness: 300 }}
+                  >
+                    {/* Outer pulse ring */}
+                    <div className="absolute -inset-3 rounded-full bg-accent/10 animate-ping" />
+                    {/* Glow node */}
+                    <div
+                      className="glow-node w-3 h-3 rounded-full relative"
+                      style={{ background: 'var(--accent)' }}
+                    >
+                      <div className="absolute inset-0.5 rounded-full bg-white/60" />
+                    </div>
+                  </motion.div>
+
+                  {/* Card positioning */}
+                  <div
+                    className={`
+                      w-full pl-16 md:pl-0
+                      md:w-[calc(50%-32px)]
+                      ${isLeft
+                        ? 'md:mr-auto md:pr-12'
+                        : 'md:ml-auto md:pl-12'
+                      }
+                    `}
+                  >
+                    {/* Connecting horizontal line from node to card (desktop only) */}
+                    <div
+                      className={`
+                        hidden md:block absolute top-1/2 -translate-y-1/2 h-[2px] w-8 z-10
+                        ${isLeft ? 'right-[calc(50%+6px)]' : 'left-[calc(50%+6px)]'}
+                      `}
+                      style={{
+                        background: 'linear-gradient(90deg, var(--accent), color-mix(in srgb, var(--accent) 20%, transparent))',
+                      }}
+                    />
+
+                    {/* Mobile connecting line */}
+                    <div
+                      className="md:hidden absolute left-[30px] top-1/2 -translate-y-1/2 h-[2px] w-8 z-10"
+                      style={{
+                        background: 'linear-gradient(90deg, var(--accent), color-mix(in srgb, var(--accent) 20%, transparent))',
+                      }}
+                    />
+
+                    <ExperienceTimelineCard
+                      exp={exp}
+                      index={index}
+                      isLeft={isLeft}
+                      onClick={() => setSelectedExp(exp)}
+                    />
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+
+          {/* Terminal comet node at bottom of timeline */}
+          <motion.div
+            className="absolute left-6 md:left-1/2 -translate-x-1/2 -bottom-4 z-20"
+            initial={{ scale: 0, opacity: 0 }}
+            whileInView={{ scale: 1, opacity: 1 }}
+            viewport={{ once: false }}
+            transition={{ duration: 0.5, delay: 0.8 }}
+          >
+            <div
+              className="w-2 h-2 rounded-full"
+              style={{
+                background: 'var(--accent)',
+                boxShadow: '0 0 8px 2px var(--accent)',
+              }}
+            />
+          </motion.div>
+        </div>
+
+        {/* Decorative floating particles */}
+        {[...Array(5)].map((_, i) => (
+          <motion.div
+            key={`exp-particle-${i}`}
+            className="absolute w-1 h-1 rounded-full pointer-events-none z-0"
+            style={{
+              background: 'var(--accent)',
+              top: `${15 + i * 18}%`,
+              left: `${10 + i * 20}%`,
+              boxShadow: '0 0 4px 1px var(--accent)',
+            }}
+            animate={{
+              y: [0, -15, 0],
+              opacity: [0.2, 0.6, 0.2],
+            }}
+            transition={{
+              duration: 3 + i * 0.5,
+              repeat: Infinity,
+              ease: "easeInOut",
+              delay: i * 0.4,
+            }}
+          />
+        ))}
       </section>
 
       {/* Expandable Modal Overlay for Experience */}
@@ -524,103 +603,123 @@ export function Home() {
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
               onClick={() => setSelectedExp(null)}
-              className="fixed inset-0 bg-slate-900/50 dark:bg-black/70 backdrop-blur-sm z-[100]"
+              className="fixed inset-0 bg-slate-900/60 dark:bg-black/75 backdrop-blur-md z-[100]"
             />
 
             <div className="fixed inset-0 flex items-center justify-center z-[101] pointer-events-none p-4 md:p-10">
               <motion.div
-                layoutId={`exp-${selectedKey}-container`}
-                className="w-full max-w-2xl max-h-[90vh] bg-surface border border-line rounded-3xl overflow-y-auto pointer-events-auto flex flex-col shadow-2xl relative p-8 md:p-12"
+                initial={{ opacity: 0, scale: 0.92, y: 30 }}
+                animate={{ opacity: 1, scale: 1, y: 0 }}
+                exit={{ opacity: 0, scale: 0.92, y: 30 }}
+                transition={{ duration: 0.35, ease: [0.25, 0.46, 0.45, 0.94] }}
+                className="w-full max-w-2xl max-h-[90vh] glass-panel border border-accent/20 rounded-3xl overflow-y-auto pointer-events-auto flex flex-col shadow-[0_0_60px_-12px_rgba(79,141,240,0.3)] relative"
               >
-                <motion.button
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  exit={{ opacity: 0 }}
-                  onClick={() => setSelectedExp(null)}
-                  className="absolute top-4 right-4 z-10 w-10 h-10 bg-surface-2 rounded-full flex items-center justify-center text-ink-muted hover:text-red-500 transition-colors shadow-sm"
-                >
-                  <FaTimes />
-                </motion.button>
+                {/* Glowing top accent line */}
+                <div
+                  className="absolute top-0 left-0 right-0 h-[2px] rounded-t-3xl z-10"
+                  style={{
+                    background: 'linear-gradient(90deg, transparent, var(--accent), var(--accent-strong), var(--accent), transparent)',
+                    boxShadow: '0 0 12px 2px var(--accent), 0 2px 20px 4px rgba(79,141,240,0.3)',
+                  }}
+                />
 
-                <div className="flex items-center gap-6 mb-8">
-                  {selectedExp.logo && (
-                    <motion.div
-                      layoutId={`exp-${selectedKey}-logo-container`}
-                      className="shrink-0 w-20 h-20 sm:w-24 sm:h-24 rounded-2xl overflow-hidden border border-line bg-surface-2 flex items-center justify-center"
-                    >
-                      <motion.img
-                        layoutId={`exp-${selectedKey}-logo`}
-                        src={selectedExp.logo}
-                        alt={`${selectedExp.company} logo`}
-                        className="w-full h-full object-cover"
-                      />
-                    </motion.div>
-                  )}
-                  <div>
-                    <motion.span
-                      layoutId={`exp-${selectedKey}-date`}
-                      className="text-xs font-bold text-accent block tracking-wide uppercase mb-1"
-                    >
-                      {selectedExp.date} &nbsp;&bull;&nbsp; {selectedExp.location}
-                    </motion.span>
-                    <motion.h4
-                      layoutId={`exp-${selectedKey}-company`}
-                      className="text-lg font-medium text-ink-muted"
-                    >
-                      {selectedExp.company}
-                    </motion.h4>
+                <div className="p-8 md:p-12">
+                  <motion.button
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    exit={{ opacity: 0 }}
+                    onClick={() => setSelectedExp(null)}
+                    className="absolute top-4 right-4 z-10 w-10 h-10 glass-panel rounded-full flex items-center justify-center text-ink-muted hover:text-red-500 hover:shadow-[0_0_15px_rgba(239,68,68,0.3)] transition-all shadow-sm"
+                  >
+                    <FaTimes />
+                  </motion.button>
+
+                  <div className="flex items-center gap-6 mb-8">
+                    {selectedExp.logo && (
+                      <div className="relative shrink-0">
+                        <div
+                          className="absolute -inset-2 rounded-2xl border border-dashed animate-orbit"
+                          style={{ borderColor: 'color-mix(in srgb, var(--accent) 30%, transparent)' }}
+                        />
+                        <div className="w-20 h-20 sm:w-24 sm:h-24 rounded-2xl overflow-hidden border border-line bg-surface-2 flex items-center justify-center">
+                          <img
+                            src={selectedExp.logo}
+                            alt={`${selectedExp.company} logo`}
+                            className="w-full h-full object-cover"
+                          />
+                        </div>
+                      </div>
+                    )}
+                    <div>
+                      <span className="text-xs font-bold text-accent block tracking-wide uppercase mb-1">
+                        {selectedExp.date} &nbsp;&bull;&nbsp; {selectedExp.location}
+                      </span>
+                      <h4 className="text-lg font-medium text-ink-muted">
+                        {selectedExp.company}
+                      </h4>
+                    </div>
                   </div>
+
+                  <h3 className="font-display text-3xl md:text-4xl font-extrabold text-ink mb-6">
+                    {selectedExp.title}
+                  </h3>
+
+                  <div className="flex flex-wrap gap-2 mb-8">
+                    {selectedExp.skills.map((skill, idx) => (
+                      <span key={idx} className="badge-blue px-3 py-1 text-xs hover:shadow-[0_0_12px_rgba(79,141,240,0.35)] transition-shadow">
+                        {skill}
+                      </span>
+                    ))}
+                  </div>
+
+                  <p className="text-ink-muted text-base md:text-lg leading-relaxed whitespace-pre-wrap">
+                    {selectedExp.description}
+                  </p>
                 </div>
 
-                <motion.h3
-                  layoutId={`exp-${selectedKey}-title`}
-                  className="font-display text-3xl md:text-4xl font-extrabold text-ink mb-6"
-                >
-                  {selectedExp.title}
-                </motion.h3>
-
+                {/* Bottom shimmer line */}
                 <motion.div
-                  layoutId={`exp-${selectedKey}-skills`}
-                  className="flex flex-wrap gap-2 mb-8"
-                >
-                  {selectedExp.skills.map((skill, idx) => (
-                    <span key={idx} className="badge-blue px-3 py-1 text-xs">
-                      {skill}
-                    </span>
-                  ))}
-                </motion.div>
-
-                <motion.p
-                  layoutId={`exp-${selectedKey}-desc`}
-                  className="text-ink-muted text-base md:text-lg leading-relaxed whitespace-pre-wrap"
-                >
-                  {selectedExp.description}
-                </motion.p>
+                  className="absolute bottom-0 left-0 right-0 h-[1px]"
+                  style={{
+                    background: 'linear-gradient(90deg, transparent, var(--accent), transparent)',
+                  }}
+                  initial={{ scaleX: 0 }}
+                  animate={{ scaleX: 1 }}
+                  transition={{ duration: 1.2, delay: 0.3 }}
+                />
               </motion.div>
             </div>
           </>
         )}
       </AnimatePresence>
 
-      {/* About Section */}
-      <section id="about" className="w-full">
-        <About />
-      </section>
+      {/* ===== SECTION 02 — ABOUT ===== */}
+      <SectionReveal>
+        <section id="about" className="w-full min-h-screen flex flex-col justify-center py-12">
+          <About />
+        </section>
+      </SectionReveal>
 
-      {/* Education Section */}
-      <section id="education" className="w-full">
-        <Education />
-      </section>
+      {/* ===== SECTION 03 — EDUCATION ===== */}
+      <SectionReveal>
+        <section id="education" className="w-full min-h-screen flex flex-col justify-center py-12">
+          <Education />
+        </section>
+      </SectionReveal>
 
-      {/* Projects Section */}
-      <section id="projects" className="w-full">
-        <Projects />
-      </section>
+      {/* ===== SECTION 04 — PROJECTS ===== */}
+      <SectionReveal>
+        <section id="projects" className="w-full min-h-screen flex flex-col justify-center py-12">
+          <Projects />
+        </section>
+      </SectionReveal>
 
-      {/* Contact Section */}
-      <section id="contact" className="w-full">
-        <Contact />
-      </section>
+      {/* ===== SECTION 05 — CONTACT ===== */}
+      <SectionReveal>
+        <section id="contact" className="w-full min-h-screen flex flex-col justify-center py-12">
+          <Contact />
+        </section>
+      </SectionReveal>
 
     </div>
   );

@@ -1,5 +1,5 @@
 import { motion, AnimatePresence } from 'framer-motion';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { FiSun, FiMoon } from 'react-icons/fi';
 import { useTheme } from '../hooks/useTheme';
 
@@ -8,28 +8,47 @@ export function Navbar() {
   const [scrolled, setScrolled] = useState(false);
   const { theme, toggleTheme } = useTheme();
 
-  const links = [
+  const links = useMemo(() => [
     { name: 'Home', id: 'home' },
-    { name: 'Experience', id: 'experience' },
     { name: 'About', id: 'about' },
     { name: 'Education', id: 'education' },
     { name: 'Projects', id: 'projects' },
     { name: 'Contact', id: 'contact' }
-  ];
+  ], []);
 
   useEffect(() => {
     const handleScrollSpy = () => {
-      const scrollPosition = window.scrollY + 200;
-      setScrolled(window.scrollY > 20);
+      const scrollY = window.scrollY;
+      setScrolled(scrollY > 20);
 
-      for (let i = links.length - 1; i >= 0; i--) {
-        const section = document.getElementById(links[i].id);
-        if (section && section.offsetTop <= scrollPosition) {
-          setActiveSection(links[i].id);
-          break;
+      // Guard: if near the very top, always show Home
+      if (scrollY < 100) {
+        setActiveSection('home');
+        return;
+      }
+
+      // Use getBoundingClientRect() instead of offsetTop because sections
+      // are wrapped in SectionReveal (position: relative), which makes
+      // offsetTop relative to that parent — not the document.
+      // A section is "active" when its top edge is above 1/3 of the viewport.
+      const threshold = window.innerHeight / 3;
+      let current = 'home';
+
+      for (const link of links) {
+        const section = document.getElementById(link.id);
+        if (section) {
+          const rect = section.getBoundingClientRect();
+          if (rect.top <= threshold) {
+            current = link.id;
+          }
         }
       }
+
+      setActiveSection(current);
     };
+
+    // Run once on mount to set initial state
+    handleScrollSpy();
 
     window.addEventListener('scroll', handleScrollSpy);
     return () => window.removeEventListener('scroll', handleScrollSpy);

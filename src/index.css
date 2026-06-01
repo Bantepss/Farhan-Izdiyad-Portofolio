@@ -1,7 +1,7 @@
-/* --- Fonts: Figma (Poppins / Sora / Inter) + Loading screen (Playfair / Quicksand) --- */
+/* --- Fonts: Inter (display/UI presisi) + Poppins (body) + Sora (brand) + Loading (Playfair/Quicksand) --- */
 @import url('https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;1,300;1,400&display=swap');
 @import url('https://fonts.googleapis.com/css2?family=Sora:wght@100;200;300;400;500;600;700&display=swap');
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap');
 @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400..900;1,400..900&family=Quicksand:wght@300..700&display=swap');
 
 @import "tailwindcss";
@@ -11,9 +11,9 @@
 @custom-variant dark (&:where(.dark, .dark *));
 
 @theme {
-  /* Font families (ikut Figma) */
+  /* Font families */
   --font-sans: 'Poppins', ui-sans-serif, system-ui, sans-serif;
-  --font-display: 'Poppins', sans-serif;
+  --font-display: 'Inter', 'Poppins', sans-serif;
   --font-brand: 'Sora', sans-serif;
   --font-ui: 'Inter', sans-serif;
 
@@ -35,6 +35,7 @@
   --color-accent: var(--accent);
   --color-accent-strong: var(--accent-strong);
   --color-accent-soft: var(--accent-soft);
+  --color-accent-2: var(--accent-2);
 
   /* Kompatibilitas dengan token lama yang masih dirujuk sebagian komponen */
   --color-text-main: var(--ink);
@@ -42,57 +43,66 @@
   --color-bg-page: var(--page);
   --color-bg-card: var(--surface);
   --color-border-subtle: var(--line);
+
+  /* Easing premium (expo-out) — gerak "berat" yang elegan */
+  --ease-comet: cubic-bezier(0.16, 1, 0.3, 1);
 }
 
-/* ---------- Palet LIGHT (default): putih + biru ---------- */
+/* ---------- Palet LIGHT (default): putih bersih + biru ---------- */
 :root {
   color-scheme: light;
 
-  --page: #F8FAFC;
+  --page: #F6F8FC;
   --surface: #FFFFFF;
-  --surface-2: #F1F5F9;
-  --ink: #0F172A;
+  --surface-2: #EEF2F8;
+  --ink: #0B1220;
   --ink-muted: #475569;
-  --ink-subtle: #94A3B8;
-  --line: #E2E8F0;
+  --ink-subtle: #8A99AE;
+  --line: #E3E8EF;
 
   --accent: #135CC5;
   --accent-strong: #0C3BAA;
   --accent-soft: #EFF6FF;
+  --accent-2: #0EA5E9;
 
-  /* Glow ambient (efek noisy-gradient dari Figma, dibuat ulang dengan biru).
-     Light mode dinaikkan intensitasnya agar kedip biru tetap terlihat di atas latar putih. */
-  --glow-1: rgba(37, 99, 235, 0.50);
-  --glow-2: rgba(59, 130, 246, 0.40);
-  --glow-3: rgba(96, 122, 255, 0.34);
+  /* Glow ambient — halus dan elegan, tidak mencolok */
+  --glow-1: rgba(37, 99, 235, 0.12);
+  --glow-2: rgba(59, 130, 246, 0.09);
+  --glow-3: rgba(14, 165, 233, 0.08);
 
-  /* Glass panel */
+  /* Glass panel — light: cukup solid agar hierarki tetap terbaca (bukan susu pekat). */
   --glass-bg: rgba(255, 255, 255, 0.55);
-  --glass-border: rgba(255, 255, 255, 0.7);
+  --glass-border: rgba(15, 23, 42, 0.08);
+  --glass-highlight: rgba(255, 255, 255, 0.7);
+  --shadow-card: 0 1px 2px rgba(15, 23, 42, 0.04), 0 12px 32px -12px rgba(15, 23, 42, 0.12);
 }
 
-/* ---------- Palet DARK: hitam + biru ---------- */
+/* ---------- Palet DARK: cinema-grade (deep, bukan hitam pekat) + biru ---------- */
 .dark {
   color-scheme: dark;
 
-  --page: #060910;
-  --surface: #0E1524;
-  --surface-2: #131C30;
-  --ink: #E8EEF7;
-  --ink-muted: #9FB0C9;
-  --ink-subtle: #6B7C97;
-  --line: rgba(148, 163, 184, 0.16);
+  --page: #050507;
+  --surface: #0A0E18;
+  --surface-2: #0F1422;
+  --ink: #ECF1F8;
+  --ink-muted: #9DAFC7;
+  --ink-subtle: #64748B;
+  --line: rgba(148, 163, 184, 0.12);
 
   --accent: #4F8DF0;
   --accent-strong: #3B82F6;
-  --accent-soft: rgba(79, 141, 240, 0.14);
+  --accent-soft: rgba(79, 141, 240, 0.12);
+  --accent-2: #38BDF8;
 
-  --glow-1: rgba(37, 99, 235, 0.40);
-  --glow-2: rgba(29, 78, 216, 0.30);
-  --glow-3: rgba(13, 40, 90, 0.55);
+  --glow-1: rgba(37, 99, 235, 0.14);
+  --glow-2: rgba(29, 78, 216, 0.10);
+  --glow-3: rgba(13, 40, 90, 0.18);
 
-  --glass-bg: rgba(20, 30, 50, 0.45);
-  --glass-border: rgba(148, 163, 184, 0.22);
+  /* Glass panel — dark: kaca tipis + hairline + highlight tepi atas. */
+  --glass-bg: rgba(15, 21, 34, 0.55);
+  --glass-border: rgba(148, 163, 184, 0.14);
+  --glass-highlight: rgba(255, 255, 255, 0.06);
+  --shadow-card: 0 1px 0 rgba(255, 255, 255, 0.03) inset, 0 24px 60px -28px rgba(0, 0, 0, 0.75);
 }
 
 @layer base {
@@ -100,13 +110,39 @@
     scroll-behavior: smooth;
   }
 
+  /* Smooth theme transitions on ALL elements so light/dark toggle feels elegant */
+  *,
+  *::before,
+  *::after {
+    transition: background-color 0.5s ease,
+               color 0.5s ease,
+               border-color 0.5s ease,
+               box-shadow 0.5s ease,
+               fill 0.5s ease;
+  }
+
   body {
     @apply bg-[var(--page)] text-[var(--ink)] font-sans antialiased overflow-x-hidden;
-    transition: background-color 0.4s ease, color 0.4s ease;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    text-rendering: optimizeLegibility;
+  }
+
+  /* Heading memakai Inter dengan tracking ketat → kesan presisi/teknis (premium developer). */
+  h1, h2, h3 {
+    font-family: var(--font-display);
+    letter-spacing: -0.02em;
   }
 
   ::selection {
     @apply bg-[var(--accent)] text-white;
+  }
+
+  /* Fokus keyboard yang jelas & on-brand (aksesibilitas). */
+  :where(a, button, [role="button"], input, textarea, select, [tabindex]):focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 2px;
+    border-radius: 6px;
   }
 }
 
@@ -118,29 +154,50 @@
     font-family: var(--font-ui);
   }
 
+  /* Teks gradient premium (atas solid → bawah memudar), dipakai untuk heading besar. */
+  .text-gradient {
+    background-image: linear-gradient(180deg, var(--ink) 0%, color-mix(in srgb, var(--ink) 52%, transparent) 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+  }
+  /* Varian "lit" bertinta komet untuk wordmark hero. */
+  .text-gradient-accent {
+    background-image: linear-gradient(115deg, var(--ink) 28%, var(--accent) 72%, var(--accent-2) 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+  }
+
   .glass-panel {
     background-color: var(--glass-bg);
     border: 1px solid var(--glass-border);
-    -webkit-backdrop-filter: blur(14px);
-    backdrop-filter: blur(14px);
-    @apply shadow-sm;
+    -webkit-backdrop-filter: blur(16px) saturate(140%);
+    backdrop-filter: blur(16px) saturate(140%);
+    box-shadow: var(--shadow-card), 0 1px 0 var(--glass-highlight) inset;
   }
 
   .saas-card {
     background-color: var(--surface);
     border: 1px solid var(--line);
-    @apply rounded-2xl shadow-sm transition-[box-shadow,transform,background-color,border-color] duration-300 hover:shadow-lg;
+    @apply rounded-2xl transition-[box-shadow,transform,background-color,border-color] duration-300;
+    box-shadow: var(--shadow-card);
   }
-  .dark .saas-card {
-    @apply shadow-none hover:shadow-[0_8px_40px_-12px_rgba(37,99,235,0.35)];
+  .saas-card:hover {
+    box-shadow: var(--shadow-card), 0 0 0 1px color-mix(in srgb, var(--accent) 30%, transparent);
   }
 
   .btn-primary {
-    background-color: var(--accent);
-    @apply text-white px-6 py-3 rounded-xl font-medium transition-colors shadow-sm;
+    background-image: linear-gradient(180deg, color-mix(in srgb, var(--accent) 86%, white) 0%, var(--accent) 60%, var(--accent-strong) 100%);
+    box-shadow: 0 8px 22px -8px color-mix(in srgb, var(--accent) 75%, transparent), 0 1px 0 rgba(255, 255, 255, 0.28) inset;
+    @apply text-white px-6 py-3 rounded-xl font-semibold transition-[transform,box-shadow] duration-300;
   }
   .btn-primary:hover {
-    background-color: var(--accent-strong);
+    box-shadow: 0 14px 34px -8px color-mix(in srgb, var(--accent) 85%, transparent), 0 1px 0 rgba(255, 255, 255, 0.34) inset;
+    transform: translateY(-2px);
+  }
+  .btn-primary:active {
+    transform: translateY(0) scale(0.98);
   }
 
   .badge-blue {
@@ -171,8 +228,10 @@
   from { transform: translateX(0); }
   to   { transform: translateX(-50%); }
 }
-.animate-marquee {
-  animation: marquee-scroll var(--marquee-duration, 35s) linear infinite;
+@layer utilities {
+  .animate-marquee {
+    animation: marquee-scroll var(--marquee-duration, 35s) linear infinite;
+  }
 }
 .marquee-group:hover .animate-marquee {
   animation-play-state: paused;
@@ -187,9 +246,211 @@
   background: var(--page);
 }
 ::-webkit-scrollbar-thumb {
-  background: color-mix(in srgb, var(--ink-subtle) 55%, transparent);
+  background: color-mix(in srgb, var(--ink-subtle) 45%, transparent);
   border-radius: 6px;
 }
 ::-webkit-scrollbar-thumb:hover {
   background: var(--accent);
+}
+
+/* ================================================================
+   COMET / SPACE THEME EFFECTS
+   ================================================================ */
+
+/* --- Orbit rotation (profile photo ring) --- */
+@keyframes orbit-spin {
+  from { transform: rotate(0deg); }
+  to   { transform: rotate(360deg); }
+}
+.animate-orbit {
+  animation: orbit-spin 6s linear infinite;
+}
+
+/* --- Shooting-star border (conic gradient rotating around card) --- */
+@keyframes border-spin {
+  from { --border-angle: 0deg; }
+  to   { --border-angle: 360deg; }
+}
+@property --border-angle {
+  syntax: "<angle>";
+  initial-value: 0deg;
+  inherits: false;
+}
+.comet-border {
+  --border-angle: 0deg;
+  position: relative;
+  border-radius: 1.25rem;
+  overflow: hidden;
+  animation: border-spin 6s linear infinite;
+}
+.comet-border::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  padding: 1.5px;
+  background: conic-gradient(
+    from var(--border-angle),
+    transparent 35%,
+    var(--accent) 50%,
+    var(--accent-2) 56%,
+    transparent 72%
+  );
+  -webkit-mask:
+    linear-gradient(#fff 0 0) content-box,
+    linear-gradient(#fff 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+  pointer-events: none;
+}
+
+/* --- Comet trail pulse (timeline line) --- */
+@keyframes trail-pulse {
+  0%, 100% { opacity: 0.4; background-position: 0% 0%; }
+  50%      { opacity: 1;   background-position: 0% 100%; }
+}
+.comet-trail {
+  background: linear-gradient(
+    180deg,
+    transparent 0%,
+    var(--accent) 40%,
+    var(--accent-strong) 60%,
+    transparent 100%
+  );
+  background-size: 100% 200%;
+  animation: trail-pulse 3s ease-in-out infinite;
+}
+
+/* --- Glowing node (timeline dots) --- */
+@keyframes node-glow {
+  0%, 100% { box-shadow: 0 0 6px 2px var(--accent), 0 0 18px 4px color-mix(in srgb, var(--accent) 40%, transparent); }
+  50%      { box-shadow: 0 0 12px 4px var(--accent), 0 0 30px 8px color-mix(in srgb, var(--accent) 60%, transparent); }
+}
+.glow-node {
+  animation: node-glow 2.5s ease-in-out infinite;
+}
+
+/* --- Pulsing CTA glow --- */
+@keyframes cta-pulse {
+  0%, 100% { box-shadow: 0 0 12px 2px color-mix(in srgb, var(--accent) 50%, transparent); }
+  50%      { box-shadow: 0 0 28px 8px color-mix(in srgb, var(--accent) 70%, transparent), 0 0 60px 16px color-mix(in srgb, var(--accent) 30%, transparent); }
+}
+.btn-comet {
+  animation: cta-pulse 2.5s ease-in-out infinite;
+}
+
+/* --- Cosmic section glow (background ambient) — ditenangkan agar elegan, tidak "norak" --- */
+@keyframes cosmic-drift {
+  0%   { transform: translate(0, 0) scale(1); opacity: 0.18; }
+  33%  { transform: translate(24px, -16px) scale(1.06); opacity: 0.3; }
+  66%  { transform: translate(-16px, 12px) scale(0.97); opacity: 0.22; }
+  100% { transform: translate(0, 0) scale(1); opacity: 0.18; }
+}
+.cosmic-glow {
+  animation: cosmic-drift 12s ease-in-out infinite;
+}
+.cosmic-glow-delayed {
+  animation: cosmic-drift 15s ease-in-out infinite;
+  animation-delay: -6s;
+}
+
+/* --- Warp-speed overlay on hover --- */
+@keyframes warp-flash {
+  0%   { opacity: 0; transform: scaleY(0.2); }
+  30%  { opacity: 0.5; transform: scaleY(1); }
+  100% { opacity: 0; transform: scaleY(1.5); }
+}
+
+/* --- Floating skill tag --- */
+@keyframes float-tag {
+  0%, 100% { transform: translateY(0px); }
+  50%      { transform: translateY(-4px); }
+}
+
+/* ============================================================
+   PENDERECKI-STYLE IMMERSIVE ANIMATIONS
+   ============================================================ */
+
+/* --- Shooting star (random diagonal streak) --- */
+@keyframes shooting-star {
+  0%   { transform: translateX(0) translateY(0); opacity: 0; width: 0; }
+  5%   { opacity: 1; width: 80px; }
+  70%  { opacity: 1; }
+  100% { transform: translateX(300px) translateY(300px); opacity: 0; width: 120px; }
+}
+.shooting-star {
+  position: absolute;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, var(--accent), white, transparent);
+  border-radius: 999px;
+  filter: blur(0.5px);
+  box-shadow: 0 0 6px 1px var(--accent);
+  animation: shooting-star 1.8s ease-out forwards;
+  pointer-events: none;
+}
+
+/* --- Warp speed lines (radial from center) --- */
+@keyframes warp-line-expand {
+  0%   { transform: scaleX(0); opacity: 0; }
+  20%  { opacity: 0.8; }
+  100% { transform: scaleX(1); opacity: 0; }
+}
+
+/* --- Starfield twinkle --- */
+@keyframes star-twinkle {
+  0%, 100% { opacity: 0.2; transform: scale(0.8); }
+  50%      { opacity: 1; transform: scale(1.2); }
+}
+
+/* --- Section reveal horizontal light streak --- */
+@keyframes reveal-streak {
+  0%   { transform: translateX(-100%); opacity: 0; }
+  10%  { opacity: 1; }
+  90%  { opacity: 1; }
+  100% { transform: translateX(100vw); opacity: 0; }
+}
+.section-reveal-streak {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 200px;
+  height: 2px;
+  background: linear-gradient(90deg, transparent, var(--accent), white, var(--accent), transparent);
+  filter: blur(1px);
+  box-shadow: 0 0 15px 3px var(--accent), 0 0 40px 8px color-mix(in srgb, var(--accent) 40%, transparent);
+  border-radius: 999px;
+  pointer-events: none;
+  z-index: 50;
+}
+
+/* --- Nebula cloud drift --- */
+@keyframes nebula-drift {
+  0%   { transform: translate(0, 0) rotate(0deg) scale(1); }
+  25%  { transform: translate(40px, -30px) rotate(5deg) scale(1.05); }
+  50%  { transform: translate(-20px, 20px) rotate(-3deg) scale(0.98); }
+  75%  { transform: translate(30px, 10px) rotate(4deg) scale(1.03); }
+  100% { transform: translate(0, 0) rotate(0deg) scale(1); }
+}
+
+/* --- Intro glow flare on letters --- */
+@keyframes letter-flare {
+  0%   { text-shadow: 0 0 0px transparent; }
+  50%  { text-shadow: 0 0 20px var(--accent), 0 0 40px color-mix(in srgb, var(--accent) 60%, transparent), 0 0 80px color-mix(in srgb, var(--accent) 30%, transparent); }
+  100% { text-shadow: 0 0 4px color-mix(in srgb, var(--accent) 40%, transparent); }
+}
+
+/* ============================================================
+   AKSESIBILITAS: hormati prefers-reduced-motion
+   (mematikan animasi dekoratif & comet cursor di-skip di komponennya)
+   ============================================================ */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+    scroll-behavior: auto !important;
+  }
+  html {
+    scroll-behavior: auto;
+  }
 }
